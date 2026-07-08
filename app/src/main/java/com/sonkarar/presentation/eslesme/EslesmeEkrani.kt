@@ -20,12 +20,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sonkarar.R
+import com.sonkarar.presentation.ortak.GradyanZemin
 
 @Composable
 fun EslesmeEkrani(
@@ -46,7 +48,9 @@ fun EslesmeEkrani(
         }
     }
 
+    GradyanZemin {
     Scaffold(
+        containerColor = Color.Transparent,
         snackbarHost = { SnackbarHost(snackbarDurumu) }
     ) { doldurma ->
         Column(
@@ -101,5 +105,6 @@ fun EslesmeEkrani(
                 }
             }
         }
+    }
     }
 }

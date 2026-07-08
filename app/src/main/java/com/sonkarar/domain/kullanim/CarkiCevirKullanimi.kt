@@ -54,20 +54,36 @@ class CarkiCevirKullanimi @Inject constructor(
             return Sonuc.Hata("Havuzda hiç seçenek yok. Önce havuza içerik ekleyin.")
         }
 
-        // 4) Ağırlıklı rastgele seçim
+        // 4) Ağırlıklı rastgele seçim (adalet için TÜM liste üzerinden)
         val kazanan = agirlikliSecimYap(nihaiListe, rastgele)
             ?: return Sonuc.Hata("Seçim yapılamadı. Lütfen tekrar deneyin.")
 
-        val kazananIndeks = nihaiListe.indexOf(kazanan)
-        val hedefAci = hedefAciHesapla(kazananIndeks, nihaiListe.size)
+        // 5) Görsel çarkı okunur tutmak için dilim sayısını sınırla.
+        //    Kazanan her zaman görsel listede yer alır; adalet tam listeden gelir.
+        val gorselListe = gorselListeHazirla(nihaiListe, kazanan, rastgele)
+
+        val kazananIndeks = gorselListe.indexOf(kazanan)
+        val hedefAci = hedefAciHesapla(kazananIndeks, gorselListe.size)
 
         return Sonuc.Basarili(
             CarkSonucu(
-                nihaiListe = nihaiListe,
+                nihaiListe = gorselListe,
                 kazanan = kazanan,
                 kazananIndeks = kazananIndeks,
                 hedefAci = hedefAci
             )
         )
+    }
+
+    private fun gorselListeHazirla(
+        tumListe: List<HavuzOgesi>,
+        kazanan: HavuzOgesi,
+        rastgele: Random
+    ): List<HavuzOgesi> {
+        if (tumListe.size <= Sabitler.CARK_MAKS_DILIM) return tumListe
+        val digerleri = tumListe.filter { it.id != kazanan.id || it.isim != kazanan.isim }
+            .shuffled(rastgele)
+            .take(Sabitler.CARK_MAKS_DILIM - 1)
+        return (digerleri + kazanan).shuffled(rastgele)
     }
 }

@@ -65,6 +65,8 @@
     <string name="tekrar_dene">Tekrar Dene</string>
     <string name="cikis_yap">Çıkış Yap</string>
     <string name="menu">Menü</string>
+    <string name="tema">Tema</string>
+    <string name="cikmak_icin_tekrar">Çıkmak için tekrar geri tuşuna basın</string>
     <string name="baglanti_hatasi">İnternet bağlantısı kurulamadı. Bağlantınızı kontrol edin.</string>
     <string name="yukleniyor">Yükleniyor…</string>
     <string name="geri">Geri</string>

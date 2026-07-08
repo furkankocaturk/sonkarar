@@ -13,6 +13,8 @@ import com.sonkarar.domain.kullanim.OgeyiAzaltKullanimi
 import com.sonkarar.domain.kullanim.OturumuKapatKullanimi
 import com.sonkarar.domain.kullanim.SenkronizasyonuBaslatKullanimi
 import com.sonkarar.domain.kullanim.SinerjiyiGozlemleKullanimi
+import com.sonkarar.domain.kullanim.TemaAyarlaKullanimi
+import com.sonkarar.cekirdek.TemaModu
 import com.sonkarar.domain.model.CarkAsamasi
 import com.sonkarar.domain.model.CarkDurumu
 import com.sonkarar.domain.model.CarkGecmisiKaydi
@@ -35,7 +37,8 @@ class CarkViewModel @Inject constructor(
     private val carkDurumunuGuncelle: CarkDurumunuGuncelleKullanimi,
     private val gecmiseKayitEkle: GecmiseKayitEkleKullanimi,
     private val ogeyiAzalt: OgeyiAzaltKullanimi,
-    private val oturumuKapat: OturumuKapatKullanimi
+    private val oturumuKapat: OturumuKapatKullanimi,
+    private val temaAyarla: TemaAyarlaKullanimi
 ) : ViewModel() {
 
     private val _durum = MutableStateFlow(CarkArayuzDurumu())
@@ -187,6 +190,8 @@ class CarkViewModel @Inject constructor(
             _durum.update { it.copy(cikisYapildi = true) }
         }
     }
+
+    fun temaSec(mod: TemaModu) = temaAyarla(mod)
 
     fun mesajlariTemizle() = _durum.update { it.copy(hataMesaji = null, bilgiMesaji = null) }
 

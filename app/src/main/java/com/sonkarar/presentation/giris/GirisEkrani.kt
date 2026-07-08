@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -31,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.sonkarar.R
+import com.sonkarar.presentation.ortak.GradyanZemin
 import kotlinx.coroutines.launch
 
 @Composable
@@ -57,7 +59,9 @@ fun GirisEkrani(
 
     val webIstemciKimligi = stringResource(R.string.varsayilan_web_istemci_kimligi)
 
+    GradyanZemin {
     Scaffold(
+        containerColor = Color.Transparent,
         snackbarHost = { SnackbarHost(snackbarDurumu) }
     ) { doldurma ->
         Column(
@@ -120,5 +124,6 @@ fun GirisEkrani(
                 }
             }
         }
+    }
     }
 }

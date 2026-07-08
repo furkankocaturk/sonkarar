@@ -10,6 +10,7 @@ object Sabitler {
     const val ZAMAN_CEZASI_ORANI = 0.20            // %80 düşür => %20'si kalır
     const val ENJEKTE_EDILECEK_ONERI_SAYISI = 3
     const val CARK_GECMISI_LIMITI = 100            // Firestore'da tutulan azami kayıt
+    const val CARK_MAKS_DILIM = 8                  // Çarkta okunur kalması için azami dilim
 
     // Çevrimdışı (anahtarsız) tek kişi modu için sabit kimlikler.
     const val YEREL_KULLANICI_ID = "yerel_kullanici"

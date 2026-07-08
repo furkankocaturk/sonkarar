@@ -9,10 +9,13 @@ import android.os.Vibrator
 import android.os.VibratorManager
 
 /**
- * Çark çizgiden geçerken kısa titreşim ve "tık" sesi üretir.
+ * Çark dönerken ince, hoş bir dokunsal geri bildirim; sonuçta ise yumuşak bir
+ * "kazandı" tınısı üretir. Rahatsız edici sürekli bip sesi KULLANILMAZ.
  * Donanım desteği olmayan cihazlarda sessizce yok sayılır (çökme olmaz).
  */
 class HaptikVeSes(private val baglam: Context) {
+
+    private var sonTikZamani = 0L
 
     private val titresim: Vibrator? by lazy {
         runCatching {
@@ -28,18 +31,32 @@ class HaptikVeSes(private val baglam: Context) {
     }
 
     private val tonUretici: ToneGenerator? = runCatching {
-        ToneGenerator(AudioManager.STREAM_MUSIC, 60)
+        // Düşük ses seviyesi: rahatsız etmesin.
+        ToneGenerator(AudioManager.STREAM_MUSIC, 35)
     }.getOrNull()
 
+    /** Çark bir dilimden geçerken: kısa, hafif titreşim (zaman aralığıyla kısılır). */
     fun tik() {
+        val simdi = System.currentTimeMillis()
+        if (simdi - sonTikZamani < 45L) return
+        sonTikZamani = simdi
         runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                titresim?.vibrate(VibrationEffect.createOneShot(18, 90))
+                titresim?.vibrate(VibrationEffect.createOneShot(10, 60))
             } else {
                 @Suppress("DEPRECATION")
-                titresim?.vibrate(18)
+                titresim?.vibrate(10)
             }
-            tonUretici?.startTone(ToneGenerator.TONE_PROP_BEEP, 30)
+        }
+    }
+
+    /** Sonuç anında: yumuşak, kısa bir onay tınısı + hafif titreşim. */
+    fun kazanildi() {
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                titresim?.vibrate(VibrationEffect.createOneShot(40, 120))
+            }
+            tonUretici?.startTone(ToneGenerator.TONE_PROP_ACK, 180)
         }
     }
 

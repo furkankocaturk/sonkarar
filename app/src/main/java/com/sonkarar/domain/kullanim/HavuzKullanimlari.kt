@@ -1,6 +1,7 @@
 package com.sonkarar.domain.kullanim
 
 import com.sonkarar.cekirdek.Kategori
+import com.sonkarar.cekirdek.LinkUretici
 import com.sonkarar.cekirdek.Sabitler
 import com.sonkarar.cekirdek.Sonuc
 import com.sonkarar.domain.model.HavuzOgesi
@@ -36,6 +37,7 @@ class HavuzaOgeEkleKullanimi @Inject constructor(
         if (temiz.isBlank()) {
             return Sonuc.Hata("Lütfen bir isim girin.")
         }
+        val yemekMi = kategori == Kategori.YEMEK
         val oge = HavuzOgesi(
             id = "",
             kategori = kategori,
@@ -43,7 +45,9 @@ class HavuzaOgeEkleKullanimi @Inject constructor(
             tur = tur.trim(),
             ekleyenKullanici = ekleyenKullanici,
             agirlik = Sabitler.VARSAYILAN_AGIRLIK,
-            disOneriMi = false
+            disOneriMi = false,
+            detayUrl = LinkUretici.kategoriyeGoreLink(temiz, yemekMi),
+            kaynakAdi = if (yemekMi) "Tarif ara" else "Nerede izlenir?"
         )
         return havuzRepository.ogeEkle(sinerjiId, oge)
     }

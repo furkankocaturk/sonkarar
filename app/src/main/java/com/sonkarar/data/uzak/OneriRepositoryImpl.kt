@@ -81,11 +81,11 @@ class OneriRepositoryImpl @Inject constructor(
                             ekleyenKullanici = "sistem",
                             agirlik = Sabitler.VARSAYILAN_AGIRLIK,
                             disOneriMi = true,
-                            platform = "TMDB",
+                            platform = "",
                             puan = film.puan,
                             posterUrl = film.posterYolu?.let { "https://image.tmdb.org/t/p/w500$it" }.orEmpty(),
-                            detayUrl = "https://www.themoviedb.org/movie/${film.id}?language=tr-TR",
-                            kaynakAdi = "TMDB"
+                            detayUrl = com.sonkarar.cekirdek.LinkUretici.izlenecekLinki(baslik),
+                            kaynakAdi = "Nerede izlenir?"
                         )
                     }
             }
@@ -108,14 +108,9 @@ class OneriRepositoryImpl @Inject constructor(
                 ekleyenKullanici = "sistem",
                 agirlik = Sabitler.VARSAYILAN_AGIRLIK,
                 disOneriMi = true,
-                detayUrl = yemekTarifiUrlOlustur(isim),
-                kaynakAdi = "Nefis Yemek Tarifleri"
+                detayUrl = com.sonkarar.cekirdek.LinkUretici.yemekTarifLinki(isim),
+                kaynakAdi = "Tarif ara"
             )
         }
-    }
-
-    private fun yemekTarifiUrlOlustur(isim: String): String {
-        val arama = java.net.URLEncoder.encode(isim, Charsets.UTF_8.name())
-        return "https://www.nefisyemektarifleri.com/arama/?s=$arama"
     }
 }

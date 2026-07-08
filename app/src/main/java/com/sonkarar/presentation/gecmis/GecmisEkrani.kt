@@ -24,12 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sonkarar.R
 import com.sonkarar.cekirdek.Kategori
+import com.sonkarar.presentation.ortak.GradyanZemin
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -43,7 +45,9 @@ fun GecmisEkrani(
     val durum by viewModel.durum.collectAsStateWithLifecycle()
     val bicimlendirici = remember { SimpleDateFormat("dd.MM.yyyy HH:mm", Locale("tr")) }
 
+    GradyanZemin {
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.gecmis_baslik)) },
@@ -56,9 +60,9 @@ fun GecmisEkrani(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
@@ -114,5 +118,6 @@ fun GecmisEkrani(
                 }
             }
         }
+    }
     }
 }

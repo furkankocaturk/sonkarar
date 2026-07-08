@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +31,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +51,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -55,7 +65,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.sonkarar.R
 import com.sonkarar.cekirdek.Kategori
+import com.sonkarar.cekirdek.TemaModu
 import com.sonkarar.domain.model.HavuzOgesi
+import com.sonkarar.presentation.ortak.GradyanZemin
 import com.sonkarar.presentation.ortak.KonfetiEfekti
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,9 +83,26 @@ fun CarkEkrani(
     val snackbarDurumu = remember { SnackbarHostState() }
     val haptik = remember { HaptikVeSes(baglam) }
     var menuAcik by remember { mutableStateOf(false) }
+    var sonGeriZamani by remember { mutableStateOf(0L) }
+    val cikmakMesaji = stringResource(R.string.cikmak_icin_tekrar)
 
     DisposableEffect(Unit) {
         onDispose { haptik.serbestBirak() }
+    }
+
+    // Çift geri: ilk basışta uyarı, ikinci basışta çıkış (evrensel davranış).
+    BackHandler {
+        val simdi = System.currentTimeMillis()
+        if (simdi - sonGeriZamani < 2000L) {
+            (baglam as? Activity)?.finish()
+        } else {
+            sonGeriZamani = simdi
+            Toast.makeText(baglam, cikmakMesaji, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(durum.sonucGosteriliyor) {
+        if (durum.sonucGosteriliyor) haptik.kazanildi()
     }
 
     LaunchedEffect(durum.cikisYapildi) {
@@ -87,7 +116,9 @@ fun CarkEkrani(
         }
     }
 
+    GradyanZemin {
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.cark_baslik)) },
@@ -115,6 +146,23 @@ fun CarkEkrani(
                                 gecmiseGit()
                             }
                         )
+                        HorizontalDivider()
+                        Text(
+                            text = stringResource(R.string.tema),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        TemaModu.entries.forEach { mod ->
+                            DropdownMenuItem(
+                                text = { Text(mod.etiket) },
+                                onClick = {
+                                    menuAcik = false
+                                    viewModel.temaSec(mod)
+                                }
+                            )
+                        }
+                        HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.cikis_yap)) },
                             onClick = {
@@ -125,9 +173,9 @@ fun CarkEkrani(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
@@ -182,18 +230,10 @@ fun CarkEkrani(
                     )
                 }
 
-                Button(
-                    onClick = viewModel::cevir,
-                    enabled = !durum.donuyorMu,
-                    modifier = Modifier
-                        .size(120.dp),
-                    shape = CircleShape
-                ) {
-                    Text(
-                        text = stringResource(R.string.cevir),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
+                CevirButonu(
+                    etkin = !durum.donuyorMu,
+                    tikla = viewModel::cevir
+                )
             }
 
             if (durum.sonucGosteriliyor) {
@@ -203,6 +243,37 @@ fun CarkEkrani(
                 )
             }
         }
+    }
+    }
+}
+
+@Composable
+private fun CevirButonu(etkin: Boolean, tikla: () -> Unit) {
+    val olcek by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (etkin) 1f else 0.94f,
+        label = "cevirOlcek"
+    )
+    Box(
+        modifier = Modifier
+            .size(132.dp)
+            .graphicsLayer { scaleX = olcek; scaleY = olcek }
+            .clip(CircleShape)
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.tertiary
+                    )
+                )
+            )
+            .clickable(enabled = etkin, onClick = tikla),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(R.string.cevir),
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.White
+        )
     }
 }
 

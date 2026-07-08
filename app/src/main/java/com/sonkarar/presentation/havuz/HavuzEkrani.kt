@@ -39,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sonkarar.R
 import com.sonkarar.cekirdek.Kategori
 import com.sonkarar.domain.model.HavuzOgesi
+import com.sonkarar.presentation.ortak.GradyanZemin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +67,9 @@ fun HavuzEkrani(
         }
     }
 
+    GradyanZemin {
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.havuz_baslik)) },
@@ -78,9 +82,9 @@ fun HavuzEkrani(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
@@ -140,6 +144,7 @@ fun HavuzEkrani(
                 ekle = viewModel::ogeEkle
             )
         }
+    }
     }
 }
 
