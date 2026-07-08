@@ -10,16 +10,22 @@ import com.sonkarar.cekirdek.guvenliCagri
 import com.sonkarar.cekirdek.turkceMesaj
 import com.sonkarar.data.esleyici.domaineDonustur
 import com.sonkarar.data.esleyici.dtoyaDonustur
-import com.sonkarar.data.firestore.dto.HavuzOgesiDto
 import com.sonkarar.data.firestore.dto.CarkGecmisiKaydiDto
+import com.sonkarar.data.firestore.dto.HavuzOgesiDto
 import com.sonkarar.data.firestore.dto.SinerjiDto
+import com.sonkarar.data.tercih.AppTercihleri
 import com.sonkarar.data.varsayilan.OntanimliHavuz
+import com.sonkarar.data.yerel.KararGecmisiDao
+import com.sonkarar.data.yerel.varlik.KararGecmisiVarligi
 import com.sonkarar.domain.model.CarkDurumu
+import com.sonkarar.domain.model.CarkGecmisiKaydi
 import com.sonkarar.domain.model.Sinerji
 import com.sonkarar.domain.repository.SinerjiRepository
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,8 +33,13 @@ import javax.inject.Singleton
 @Singleton
 class SinerjiRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val kimlik: FirebaseAuth
+    private val kimlik: FirebaseAuth,
+    private val tercihler: AppTercihleri,
+    private val kararGecmisiDao: KararGecmisiDao
 ) : SinerjiRepository {
+
+    // Çevrimdışı modda çark durumu bellek içinde tutulur (senkron gerekmez).
+    private val yerelCarkDurumu = MutableStateFlow(CarkDurumu())
 
     override suspend fun odaOlusturVeyaKatil(esEposta: String): Sonuc<String> =
         guvenliCagri {
@@ -36,7 +47,6 @@ class SinerjiRepositoryImpl @Inject constructor(
             val benimEposta = (kimlik.currentUser?.email ?: "").lowercase()
             val kullanicilar = firestore.collection(Sabitler.KOLEKSIYON_KULLANICILAR)
 
-            // Karşı taraf beni eşi olarak işaretlediyse onun odasına katıl.
             val karsiTaraf = kullanicilar
                 .whereEqualTo("eposta", esEposta.trim().lowercase())
                 .whereEqualTo("esEposta", benimEposta)
@@ -85,28 +95,55 @@ class SinerjiRepositoryImpl @Inject constructor(
         yeniBelge.id
     }
 
-    override fun sinerjiyiGozlemle(sinerjiId: String): Flow<Sonuc<Sinerji>> = callbackFlow {
-        val dinleyici = firestore.collection(Sabitler.KOLEKSIYON_SINERJILER)
-            .document(sinerjiId)
-            .addSnapshotListener { anlik, hata ->
-                if (hata != null) {
-                    trySend(Sonuc.Hata(hata.turkceMesaj(), hata))
-                    return@addSnapshotListener
-                }
-                val dto = anlik?.toObject(SinerjiDto::class.java)
-                if (dto != null) {
-                    trySend(Sonuc.Basarili(dto.domaineDonustur(sinerjiId)))
-                }
+    override fun sinerjiyiGozlemle(sinerjiId: String): Flow<Sonuc<Sinerji>> {
+        if (tercihler.yerelModAktif) {
+            return combine(
+                yerelCarkDurumu,
+                kararGecmisiDao.gozlemle(sinerjiId)
+            ) { durum, gecmisVarliklari ->
+                Sonuc.Basarili(
+                    Sinerji(
+                        sinerjiId = sinerjiId,
+                        uyeler = listOf(Sabitler.YEREL_KULLANICI_ID),
+                        carkGecmisi = gecmisVarliklari.map {
+                            CarkGecmisiKaydi(
+                                zamanDamgasi = it.zamanDamgasi,
+                                kategori = Kategori.anahtardan(it.kategori),
+                                sonuc = it.sonuc
+                            )
+                        },
+                        carkDurumu = durum
+                    )
+                )
             }
-        awaitClose { dinleyici.remove() }
+        }
+        return callbackFlow {
+            val dinleyici = firestore.collection(Sabitler.KOLEKSIYON_SINERJILER)
+                .document(sinerjiId)
+                .addSnapshotListener { anlik, hata ->
+                    if (hata != null) {
+                        trySend(Sonuc.Hata(hata.turkceMesaj(), hata))
+                        return@addSnapshotListener
+                    }
+                    val dto = anlik?.toObject(SinerjiDto::class.java)
+                    if (dto != null) {
+                        trySend(Sonuc.Basarili(dto.domaineDonustur(sinerjiId)))
+                    }
+                }
+            awaitClose { dinleyici.remove() }
+        }
     }
 
     override suspend fun carkDurumunuGuncelle(
         sinerjiId: String,
         durum: CarkDurumu
     ): Sonuc<Unit> = guvenliCagri {
-        firestore.collection(Sabitler.KOLEKSIYON_SINERJILER).document(sinerjiId)
-            .update("carkDurumu", durum.dtoyaDonustur()).await()
+        if (tercihler.yerelModAktif) {
+            yerelCarkDurumu.value = durum
+        } else {
+            firestore.collection(Sabitler.KOLEKSIYON_SINERJILER).document(sinerjiId)
+                .update("carkDurumu", durum.dtoyaDonustur()).await()
+        }
     }
 
     override suspend fun gecmiseKayitEkle(
@@ -114,13 +151,24 @@ class SinerjiRepositoryImpl @Inject constructor(
         kategori: Kategori,
         sonuc: String
     ): Sonuc<Unit> = guvenliCagri {
-        val kayit = CarkGecmisiKaydiDto(
-            zamanDamgasi = System.currentTimeMillis(),
-            kategori = kategori.name,
-            sonuc = sonuc
-        )
-        firestore.collection(Sabitler.KOLEKSIYON_SINERJILER).document(sinerjiId)
-            .update("carkGecmisi", FieldValue.arrayUnion(kayit)).await()
+        if (tercihler.yerelModAktif) {
+            kararGecmisiDao.ekle(
+                KararGecmisiVarligi(
+                    sinerjiId = sinerjiId,
+                    zamanDamgasi = System.currentTimeMillis(),
+                    kategori = kategori.name,
+                    sonuc = sonuc
+                )
+            )
+        } else {
+            val kayit = CarkGecmisiKaydiDto(
+                zamanDamgasi = System.currentTimeMillis(),
+                kategori = kategori.name,
+                sonuc = sonuc
+            )
+            firestore.collection(Sabitler.KOLEKSIYON_SINERJILER).document(sinerjiId)
+                .update("carkGecmisi", FieldValue.arrayUnion(kayit)).await()
+        }
     }
 
     private suspend fun varsayilanHavuzuYaz(sinerjiId: String, kullaniciId: String) {
@@ -144,7 +192,8 @@ class SinerjiRepositoryImpl @Inject constructor(
                     puan = oge.puan,
                     posterUrl = oge.posterUrl,
                     detayUrl = oge.detayUrl,
-                    kaynakAdi = oge.kaynakAdi
+                    kaynakAdi = oge.kaynakAdi,
+                    favori = oge.favori
                 )
             )
         }

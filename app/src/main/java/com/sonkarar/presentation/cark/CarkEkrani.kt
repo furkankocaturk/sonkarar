@@ -18,9 +18,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -30,13 +33,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -56,21 +62,28 @@ import com.sonkarar.presentation.ortak.KonfetiEfekti
 @Composable
 fun CarkEkrani(
     havuzaGit: () -> Unit,
+    gecmiseGit: () -> Unit,
+    cikisYapildi: () -> Unit,
     viewModel: CarkViewModel = hiltViewModel()
 ) {
     val durum by viewModel.durum.collectAsStateWithLifecycle()
     val baglam = LocalContext.current
     val snackbarDurumu = remember { SnackbarHostState() }
     val haptik = remember { HaptikVeSes(baglam) }
+    var menuAcik by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         onDispose { haptik.serbestBirak() }
     }
 
-    LaunchedEffect(durum.hataMesaji) {
-        durum.hataMesaji?.let {
+    LaunchedEffect(durum.cikisYapildi) {
+        if (durum.cikisYapildi) cikisYapildi()
+    }
+
+    LaunchedEffect(durum.hataMesaji, durum.bilgiMesaji) {
+        (durum.hataMesaji ?: durum.bilgiMesaji)?.let {
             snackbarDurumu.showSnackbar(it)
-            viewModel.hatayiTemizle()
+            viewModel.mesajlariTemizle()
         }
     }
 
@@ -83,6 +96,31 @@ fun CarkEkrani(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.List,
                             contentDescription = stringResource(R.string.havuza_git)
+                        )
+                    }
+                    IconButton(onClick = { menuAcik = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = stringResource(R.string.menu)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = menuAcik,
+                        onDismissRequest = { menuAcik = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.gecmise_git)) },
+                            onClick = {
+                                menuAcik = false
+                                gecmiseGit()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.cikis_yap)) },
+                            onClick = {
+                                menuAcik = false
+                                viewModel.cikisYap()
+                            }
                         )
                     }
                 },
@@ -138,7 +176,10 @@ fun CarkEkrani(
                 }
 
                 if (durum.sonucGosteriliyor && durum.kazananIsim != null) {
-                    SonucKarti(oge = durum.kazananOge)
+                    SonucKarti(
+                        oge = durum.kazananOge,
+                        azalt = viewModel::kazananiAzalt
+                    )
                 }
 
                 Button(
@@ -166,7 +207,7 @@ fun CarkEkrani(
 }
 
 @Composable
-private fun SonucKarti(oge: HavuzOgesi?) {
+private fun SonucKarti(oge: HavuzOgesi?, azalt: () -> Unit) {
     if (oge == null) return
     val uriAcici = LocalUriHandler.current
     Card(
@@ -235,17 +276,25 @@ private fun SonucKarti(oge: HavuzOgesi?) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                if (oge.detayUrl.isNotBlank()) {
-                    Button(
-                        onClick = { uriAcici.openUri(oge.detayUrl) },
-                        modifier = Modifier.padding(top = 12.dp)
-                    ) {
-                        val metin = if (oge.kategori == Kategori.YEMEK) {
-                            stringResource(R.string.tarife_git)
-                        } else {
-                            stringResource(R.string.detaylara_git)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 12.dp)
+                ) {
+                    if (oge.detayUrl.isNotBlank()) {
+                        Button(onClick = { uriAcici.openUri(oge.detayUrl) }) {
+                            val metin = if (oge.kategori == Kategori.YEMEK) {
+                                stringResource(R.string.tarife_git)
+                            } else {
+                                stringResource(R.string.detaylara_git)
+                            }
+                            Text(metin)
                         }
-                        Text(metin)
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    if (!oge.disOneriMi) {
+                        TextButton(onClick = azalt) {
+                            Text(stringResource(R.string.bunu_azalt))
+                        }
                     }
                 }
             }

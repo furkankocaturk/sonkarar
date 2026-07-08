@@ -9,6 +9,8 @@ import com.sonkarar.domain.kullanim.CarkDurumunuGuncelleKullanimi
 import com.sonkarar.domain.kullanim.CarkiCevirKullanimi
 import com.sonkarar.domain.kullanim.GecmiseKayitEkleKullanimi
 import com.sonkarar.domain.kullanim.HavuzuGozlemleKullanimi
+import com.sonkarar.domain.kullanim.OgeyiAzaltKullanimi
+import com.sonkarar.domain.kullanim.OturumuKapatKullanimi
 import com.sonkarar.domain.kullanim.SenkronizasyonuBaslatKullanimi
 import com.sonkarar.domain.kullanim.SinerjiyiGozlemleKullanimi
 import com.sonkarar.domain.model.CarkAsamasi
@@ -31,7 +33,9 @@ class CarkViewModel @Inject constructor(
     private val sinerjiyiGozlemle: SinerjiyiGozlemleKullanimi,
     private val carkiCevir: CarkiCevirKullanimi,
     private val carkDurumunuGuncelle: CarkDurumunuGuncelleKullanimi,
-    private val gecmiseKayitEkle: GecmiseKayitEkleKullanimi
+    private val gecmiseKayitEkle: GecmiseKayitEkleKullanimi,
+    private val ogeyiAzalt: OgeyiAzaltKullanimi,
+    private val oturumuKapat: OturumuKapatKullanimi
 ) : ViewModel() {
 
     private val _durum = MutableStateFlow(CarkArayuzDurumu())
@@ -162,6 +166,29 @@ class CarkViewModel @Inject constructor(
             }
         }
     }
+
+    fun kazananiAzalt() {
+        val anlik = _durum.value
+        val oge = anlik.kazananOge ?: return
+        if (oge.disOneriMi || oge.id.isBlank() || anlik.sinerjiId.isBlank()) return
+        viewModelScope.launch {
+            when (val sonuc = ogeyiAzalt(anlik.sinerjiId, oge)) {
+                is Sonuc.Hata -> _durum.update { it.copy(hataMesaji = sonuc.mesaj) }
+                else -> _durum.update {
+                    it.copy(bilgiMesaji = "Bu ögenin çıkma olasılığı azaltıldı")
+                }
+            }
+        }
+    }
+
+    fun cikisYap() {
+        viewModelScope.launch {
+            oturumuKapat()
+            _durum.update { it.copy(cikisYapildi = true) }
+        }
+    }
+
+    fun mesajlariTemizle() = _durum.update { it.copy(hataMesaji = null, bilgiMesaji = null) }
 
     fun hatayiTemizle() = _durum.update { it.copy(hataMesaji = null) }
 }

@@ -13,8 +13,17 @@ interface HavuzDao {
     @Query("SELECT * FROM havuz_ogeleri WHERE sinerjiId = :sinerjiId AND kategori = :kategori")
     fun ogeleriGozlemle(sinerjiId: String, kategori: String): Flow<List<HavuzOgesiVarligi>>
 
+    @Query("SELECT * FROM havuz_ogeleri WHERE sinerjiId = :sinerjiId AND kategori = :kategori")
+    suspend fun ogeleriGetir(sinerjiId: String, kategori: String): List<HavuzOgesiVarligi>
+
+    @Query("SELECT COUNT(*) FROM havuz_ogeleri WHERE sinerjiId = :sinerjiId")
+    suspend fun ogeSayisi(sinerjiId: String): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun ogeleriYaz(ogeler: List<HavuzOgesiVarligi>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun ogeYaz(oge: HavuzOgesiVarligi)
 
     @Query("DELETE FROM havuz_ogeleri WHERE sinerjiId = :sinerjiId AND kategori = :kategori")
     suspend fun kategoriyiTemizle(sinerjiId: String, kategori: String)

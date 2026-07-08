@@ -17,7 +17,8 @@ fun HavuzOgesiDto.domaineDonustur(): HavuzOgesi = HavuzOgesi(
     puan = puan,
     posterUrl = posterUrl,
     detayUrl = detayUrl,
-    kaynakAdi = kaynakAdi
+    kaynakAdi = kaynakAdi,
+    favori = favori
 )
 
 fun HavuzOgesi.dtoyaDonustur(): HavuzOgesiDto = HavuzOgesiDto(
@@ -32,7 +33,8 @@ fun HavuzOgesi.dtoyaDonustur(): HavuzOgesiDto = HavuzOgesiDto(
     puan = puan,
     posterUrl = posterUrl,
     detayUrl = detayUrl,
-    kaynakAdi = kaynakAdi
+    kaynakAdi = kaynakAdi,
+    favori = favori
 )
 
 fun HavuzOgesi.varligaDonustur(sinerjiId: String): HavuzOgesiVarligi = HavuzOgesiVarligi(
@@ -48,7 +50,8 @@ fun HavuzOgesi.varligaDonustur(sinerjiId: String): HavuzOgesiVarligi = HavuzOges
     puan = puan,
     posterUrl = posterUrl,
     detayUrl = detayUrl,
-    kaynakAdi = kaynakAdi
+    kaynakAdi = kaynakAdi,
+    favori = favori
 )
 
 fun HavuzOgesiVarligi.domaineDonustur(): HavuzOgesi = HavuzOgesi(
@@ -63,5 +66,6 @@ fun HavuzOgesiVarligi.domaineDonustur(): HavuzOgesi = HavuzOgesi(
     puan = puan,
     posterUrl = posterUrl,
     detayUrl = detayUrl,
-    kaynakAdi = kaynakAdi
+    kaynakAdi = kaynakAdi,
+    favori = favori
 )

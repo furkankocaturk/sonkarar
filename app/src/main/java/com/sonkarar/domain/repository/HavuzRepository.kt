@@ -14,6 +14,9 @@ interface HavuzRepository {
 
     suspend fun ogeEkle(sinerjiId: String, oge: HavuzOgesi): Sonuc<Unit>
 
+    /** Var olan bir ögeyi (favori, ağırlık vb.) günceller. */
+    suspend fun ogeGuncelle(sinerjiId: String, oge: HavuzOgesi): Sonuc<Unit>
+
     suspend fun ogeSil(sinerjiId: String, ogeId: String): Sonuc<Unit>
 
     /** Anlık ağırlıklı çark hesabı için tüm kategoriyi tek seferlik getirir. */

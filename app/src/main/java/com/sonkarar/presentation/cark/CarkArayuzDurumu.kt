@@ -16,7 +16,9 @@ data class CarkArayuzDurumu(
     val kazananIsim: String? = null,
     val sonucGosteriliyor: Boolean = false,
     val konfetiTetikleyici: Long = 0L,
-    val hataMesaji: String? = null
+    val hataMesaji: String? = null,
+    val bilgiMesaji: String? = null,
+    val cikisYapildi: Boolean = false
 ) {
     val gorunenOgeler: List<HavuzOgesi>
         get() = if (aktifKategori == Kategori.YEMEK) yemekler else izlenecekler

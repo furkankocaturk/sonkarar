@@ -6,4 +6,5 @@ object Rotalar {
     const val ESLESME = "eslesme"
     const val HAVUZ = "havuz"
     const val CARK = "cark"
+    const val GECMIS = "gecmis"
 }

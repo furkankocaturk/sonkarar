@@ -3,6 +3,7 @@ package com.sonkarar.di
 import android.content.Context
 import androidx.room.Room
 import com.sonkarar.data.yerel.HavuzDao
+import com.sonkarar.data.yerel.KararGecmisiDao
 import com.sonkarar.data.yerel.SonKararVeriTabani
 import dagger.Module
 import dagger.Provides
@@ -27,4 +28,8 @@ object VeriTabaniModulu {
     @Provides
     fun havuzDaoSagla(veriTabani: SonKararVeriTabani): HavuzDao =
         veriTabani.havuzDao()
+
+    @Provides
+    fun kararGecmisiDaoSagla(veriTabani: SonKararVeriTabani): KararGecmisiDao =
+        veriTabani.kararGecmisiDao()
 }

@@ -55,3 +55,20 @@ class HavuzdanOgeSilKullanimi @Inject constructor(
     suspend operator fun invoke(sinerjiId: String, ogeId: String): Sonuc<Unit> =
         havuzRepository.ogeSil(sinerjiId, ogeId)
 }
+
+class FavoriDegistirKullanimi @Inject constructor(
+    private val havuzRepository: HavuzRepository
+) {
+    suspend operator fun invoke(sinerjiId: String, oge: HavuzOgesi): Sonuc<Unit> =
+        havuzRepository.ogeGuncelle(sinerjiId, oge.copy(favori = !oge.favori))
+}
+
+class OgeyiAzaltKullanimi @Inject constructor(
+    private val havuzRepository: HavuzRepository
+) {
+    /** Ögenin çarkta çıkma olasılığını kalıcı olarak azaltır (ağırlığı yarıya iner). */
+    suspend operator fun invoke(sinerjiId: String, oge: HavuzOgesi): Sonuc<Unit> {
+        val yeniAgirlik = (oge.agirlik / 2).coerceAtLeast(1)
+        return havuzRepository.ogeGuncelle(sinerjiId, oge.copy(agirlik = yeniAgirlik))
+    }
+}

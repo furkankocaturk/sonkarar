@@ -14,5 +14,6 @@ data class HavuzOgesi(
     val puan: Double? = null,
     val posterUrl: String = "",
     val detayUrl: String = "",
-    val kaynakAdi: String = ""
+    val kaynakAdi: String = "",
+    val favori: Boolean = false
 )

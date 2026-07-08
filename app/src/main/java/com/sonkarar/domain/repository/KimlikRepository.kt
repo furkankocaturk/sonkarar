@@ -12,4 +12,10 @@ interface KimlikRepository {
     suspend fun googleIleGirisYap(kimlikJetonu: String): Sonuc<Kullanici>
 
     suspend fun oturumuKapat(): Sonuc<Unit>
+
+    /** Girişsiz, anahtarsız çevrimdışı tek kişi moduna geçer. */
+    suspend fun yerelModaGec(): Sonuc<Unit>
+
+    /** Çevrimdışı modun açık olup olmadığı. */
+    fun yerelModAktif(): Boolean
 }

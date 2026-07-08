@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sonkarar.presentation.cark.CarkEkrani
 import com.sonkarar.presentation.eslesme.EslesmeEkrani
+import com.sonkarar.presentation.gecmis.GecmisEkrani
 import com.sonkarar.presentation.giris.GirisEkrani
 import com.sonkarar.presentation.havuz.HavuzEkrani
 import com.sonkarar.presentation.ortak.YuklemeGostergesi
@@ -43,11 +44,20 @@ fun SonKararNavGrafi() {
         }
         composable(Rotalar.CARK) {
             CarkEkrani(
-                havuzaGit = { navKontrolcu.navigate(Rotalar.HAVUZ) }
+                havuzaGit = { navKontrolcu.navigate(Rotalar.HAVUZ) },
+                gecmiseGit = { navKontrolcu.navigate(Rotalar.GECMIS) },
+                cikisYapildi = {
+                    navKontrolcu.navigate(Rotalar.ACILIS) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
         composable(Rotalar.HAVUZ) {
             HavuzEkrani(geriGit = { navKontrolcu.popBackStack() })
+        }
+        composable(Rotalar.GECMIS) {
+            GecmisEkrani(geriGit = { navKontrolcu.popBackStack() })
         }
     }
 }

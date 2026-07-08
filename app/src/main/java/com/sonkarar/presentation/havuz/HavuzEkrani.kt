@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -121,10 +123,8 @@ fun HavuzEkrani(
                     items(durum.gorunenOgeler, key = { it.id }) { oge ->
                         OgeSatiri(
                             oge = oge,
-                            sil = {
-                                viewModel.ogeSil(oge.id)
-                                // Snackbar geri bildirimi
-                            },
+                            sil = { viewModel.ogeSil(oge.id) },
+                            favoriDegistir = { viewModel.favoriDegistir(oge) },
                             silindiMetni = ogeSilindiMetni,
                             snackbarDurumu = snackbarDurumu
                         )
@@ -148,6 +148,7 @@ fun HavuzEkrani(
 private fun OgeSatiri(
     oge: HavuzOgesi,
     sil: () -> Unit,
+    favoriDegistir: () -> Unit,
     silindiMetni: String,
     snackbarDurumu: SnackbarHostState
 ) {
@@ -196,7 +197,13 @@ private fun OgeSatiri(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = oge.isim,
                     style = MaterialTheme.typography.titleLarge,
@@ -234,6 +241,22 @@ private fun OgeSatiri(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+            }
+                IconButton(onClick = favoriDegistir) {
+                    Icon(
+                        imageVector = if (oge.favori) Icons.Filled.Star else Icons.Filled.StarBorder,
+                        contentDescription = if (oge.favori) {
+                            stringResource(R.string.favori_cikar)
+                        } else {
+                            stringResource(R.string.favori_ekle)
+                        },
+                        tint = if (oge.favori) {
+                            MaterialTheme.colorScheme.tertiary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
             }
         }
     }

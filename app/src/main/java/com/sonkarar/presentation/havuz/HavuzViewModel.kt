@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.sonkarar.cekirdek.Kategori
 import com.sonkarar.cekirdek.Sonuc
 import com.sonkarar.domain.kullanim.AktifKullaniciyiGozlemleKullanimi
+import com.sonkarar.domain.kullanim.FavoriDegistirKullanimi
 import com.sonkarar.domain.kullanim.HavuzaOgeEkleKullanimi
 import com.sonkarar.domain.kullanim.HavuzdanOgeSilKullanimi
 import com.sonkarar.domain.kullanim.HavuzuGozlemleKullanimi
 import com.sonkarar.domain.kullanim.SenkronizasyonuBaslatKullanimi
+import com.sonkarar.domain.model.HavuzOgesi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,8 @@ class HavuzViewModel @Inject constructor(
     private val havuzuGozlemle: HavuzuGozlemleKullanimi,
     private val senkronizasyonuBaslat: SenkronizasyonuBaslatKullanimi,
     private val havuzaOgeEkle: HavuzaOgeEkleKullanimi,
-    private val havuzdanOgeSil: HavuzdanOgeSilKullanimi
+    private val havuzdanOgeSil: HavuzdanOgeSilKullanimi,
+    private val favoriDegistirKullanimi: FavoriDegistirKullanimi
 ) : ViewModel() {
 
     private val _durum = MutableStateFlow(HavuzArayuzDurumu())
@@ -101,6 +104,12 @@ class HavuzViewModel @Inject constructor(
                 else -> Unit
             }
         }
+    }
+
+    fun favoriDegistir(oge: HavuzOgesi) {
+        val sinerjiId = _durum.value.sinerjiId
+        if (sinerjiId.isBlank()) return
+        viewModelScope.launch { favoriDegistirKullanimi(sinerjiId, oge) }
     }
 
     fun hatayiTemizle() = _durum.update { it.copy(hataMesaji = null) }

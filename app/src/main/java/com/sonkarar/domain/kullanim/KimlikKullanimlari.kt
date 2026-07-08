@@ -28,3 +28,9 @@ class OturumuKapatKullanimi @Inject constructor(
 ) {
     suspend operator fun invoke(): Sonuc<Unit> = kimlikRepository.oturumuKapat()
 }
+
+class YerelModaGecKullanimi @Inject constructor(
+    private val kimlikRepository: KimlikRepository
+) {
+    suspend operator fun invoke(): Sonuc<Unit> = kimlikRepository.yerelModaGec()
+}

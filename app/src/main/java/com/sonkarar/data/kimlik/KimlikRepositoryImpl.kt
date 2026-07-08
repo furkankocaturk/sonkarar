@@ -8,11 +8,15 @@ import com.sonkarar.cekirdek.Sabitler
 import com.sonkarar.cekirdek.Sonuc
 import com.sonkarar.cekirdek.guvenliCagri
 import com.sonkarar.data.firestore.dto.KullaniciDto
+import com.sonkarar.data.tercih.AppTercihleri
 import com.sonkarar.domain.model.Kullanici
 import com.sonkarar.domain.repository.KimlikRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,10 +24,24 @@ import javax.inject.Singleton
 @Singleton
 class KimlikRepositoryImpl @Inject constructor(
     private val kimlik: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val tercihler: AppTercihleri
 ) : KimlikRepository {
 
-    override fun aktifKullaniciyiGozlemle(): Flow<Kullanici?> = callbackFlow {
+    private val yerelKullanici = Kullanici(
+        kullaniciId = Sabitler.YEREL_KULLANICI_ID,
+        eposta = "cevrimdisi@sonkarar",
+        esEposta = "",
+        sinerjiId = Sabitler.YEREL_SINERJI_ID
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun aktifKullaniciyiGozlemle(): Flow<Kullanici?> =
+        tercihler.yerelModAkisi().flatMapLatest { yerelMod ->
+            if (yerelMod) flowOf(yerelKullanici) else firebaseKullaniciAkisi()
+        }
+
+    private fun firebaseKullaniciAkisi(): Flow<Kullanici?> = callbackFlow {
         var belgeDinleyici: ListenerRegistration? = null
 
         fun belgeyiDinle(uid: String) {
@@ -75,6 +93,7 @@ class KimlikRepositoryImpl @Inject constructor(
             if (!mevcut.exists()) {
                 belge.set(KullaniciDto(eposta = firebaseKullanici.email?.lowercase() ?: "")).await()
             }
+            tercihler.yerelModAktif = false
             Kullanici(
                 kullaniciId = firebaseKullanici.uid,
                 eposta = firebaseKullanici.email ?: "",
@@ -84,6 +103,13 @@ class KimlikRepositoryImpl @Inject constructor(
         }
 
     override suspend fun oturumuKapat(): Sonuc<Unit> = guvenliCagri {
+        tercihler.yerelModAktif = false
         kimlik.signOut()
     }
+
+    override suspend fun yerelModaGec(): Sonuc<Unit> = guvenliCagri {
+        tercihler.yerelModAktif = true
+    }
+
+    override fun yerelModAktif(): Boolean = tercihler.yerelModAktif
 }

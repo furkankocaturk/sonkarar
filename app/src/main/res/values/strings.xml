@@ -7,6 +7,7 @@
 
     <!-- Giriş -->
     <string name="google_ile_giris">Google ile Giriş Yap</string>
+    <string name="girissiz_devam">Girişsiz Devam Et (Çevrimdışı)</string>
     <string name="giris_hatasi">Giriş yapılamadı. Lütfen tekrar deneyin.</string>
     <string name="giris_yapiliyor">Giriş yapılıyor…</string>
 
@@ -49,9 +50,21 @@
     <string name="kategori_yemek">Yemek</string>
     <string name="kategori_izlenecek">İzlenecek</string>
 
+    <!-- Geçmiş -->
+    <string name="gecmis_baslik">Karar Geçmişi</string>
+    <string name="gecmis_bos">Henüz bir karar verilmedi. Çarkı çevirin!</string>
+    <string name="gecmise_git">Karar Geçmişi</string>
+
+    <!-- Favori / Azalt -->
+    <string name="favori_ekle">Favorilere ekle</string>
+    <string name="favori_cikar">Favorilerden çıkar</string>
+    <string name="bunu_azalt">Bunu Azalt</string>
+    <string name="oge_azaltildi">Bu ögenin çıkma olasılığı azaltıldı</string>
+
     <!-- Genel -->
     <string name="tekrar_dene">Tekrar Dene</string>
     <string name="cikis_yap">Çıkış Yap</string>
+    <string name="menu">Menü</string>
     <string name="baglanti_hatasi">İnternet bağlantısı kurulamadı. Bağlantınızı kontrol edin.</string>
     <string name="yukleniyor">Yükleniyor…</string>
     <string name="geri">Geri</string>
