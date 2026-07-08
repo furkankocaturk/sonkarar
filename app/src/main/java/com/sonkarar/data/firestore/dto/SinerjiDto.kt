@@ -1,0 +1,22 @@
+package com.sonkarar.data.firestore.dto
+
+data class CarkGecmisiKaydiDto(
+    val zamanDamgasi: Long = 0L,
+    val kategori: String = "YEMEK",
+    val sonuc: String = ""
+)
+
+data class CarkDurumuDto(
+    val durum: String = "BOSTA",
+    val ceviren: String = "",
+    val hedefAci: Double = 0.0,
+    val kazananIsim: String = "",
+    val kategori: String = "YEMEK",
+    val tur: Long = 0L
+)
+
+data class SinerjiDto(
+    val uyeler: List<String> = emptyList(),
+    val carkGecmisi: List<CarkGecmisiKaydiDto> = emptyList(),
+    val carkDurumu: CarkDurumuDto = CarkDurumuDto()
+)

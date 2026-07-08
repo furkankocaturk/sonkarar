@@ -1,0 +1,52 @@
+<resources>
+    <string name="uygulama_adi">SonKarar</string>
+    <string name="slogan">Kararı çarka bırakın</string>
+
+    <!-- Firebase Web istemci kimliği (Google ile Giriş için). Firebase konsolundan alınır. -->
+    <string name="varsayilan_web_istemci_kimligi">YER_TUTUCU_WEB_ISTEMCI_KIMLIGI.apps.googleusercontent.com</string>
+
+    <!-- Giriş -->
+    <string name="google_ile_giris">Google ile Giriş Yap</string>
+    <string name="giris_hatasi">Giriş yapılamadı. Lütfen tekrar deneyin.</string>
+    <string name="giris_yapiliyor">Giriş yapılıyor…</string>
+
+    <!-- Eşleşme -->
+    <string name="eslesme_baslik">Eşinle Eşleş</string>
+    <string name="eslesme_aciklama">Eşinin e-posta adresini gir. İkiniz de birbirinizi eklediğinizde ortak odanız hazır olur.</string>
+    <string name="es_eposta_etiketi">Eşinin E-posta Adresi</string>
+    <string name="oda_olustur_katil">Ortak Oda Oluştur / Katıl</string>
+    <string name="es_bekleniyor">Eş bekleniyor…</string>
+    <string name="es_eposta_bos">Lütfen eşinin e-posta adresini girin.</string>
+
+    <!-- Havuz -->
+    <string name="havuz_baslik">Ortak Havuz</string>
+    <string name="sekme_yemekler">Yemekler</string>
+    <string name="sekme_izlenecekler">İzlenecekler</string>
+    <string name="yeni_oge_ipucu">Yeni bir seçenek yaz…</string>
+    <string name="ekle">Ekle</string>
+    <string name="ekleyen_bicimi">Ekleyen: %1$s</string>
+    <string name="oge_silindi">Öge silindi</string>
+    <string name="geri_al">Geri Al</string>
+    <string name="havuz_bos">Henüz bir şey eklemediniz. İlk seçeneği ekleyin!</string>
+    <string name="sil">Sil</string>
+
+    <!-- Çark -->
+    <string name="cark_baslik">Karar Çarkı</string>
+    <string name="cevir">ÇEVİR</string>
+    <string name="cark_donuyor">Çark dönüyor…</string>
+    <string name="es_ceviriyor">Eşiniz çarkı çeviriyor…</string>
+    <string name="sonuc_bicimi">Sonuç: %1$s</string>
+    <string name="havuz_bos_uyari">Havuzda hiç seçenek yok. Önce havuza içerik ekleyin.</string>
+    <string name="oneri_rozeti">öneri</string>
+    <string name="havuza_git">Havuza Git</string>
+    <string name="kategori_yemek">Yemek</string>
+    <string name="kategori_izlenecek">İzlenecek</string>
+
+    <!-- Genel -->
+    <string name="tekrar_dene">Tekrar Dene</string>
+    <string name="cikis_yap">Çıkış Yap</string>
+    <string name="baglanti_hatasi">İnternet bağlantısı kurulamadı. Bağlantınızı kontrol edin.</string>
+    <string name="yukleniyor">Yükleniyor…</string>
+    <string name="geri">Geri</string>
+    <string name="kapat">Kapat</string>
+</resources>
