@@ -9,5 +9,10 @@ data class HavuzOgesi(
     val tur: String = "",
     val ekleyenKullanici: String,
     val agirlik: Int = 10,
-    val disOneriMi: Boolean = false
+    val disOneriMi: Boolean = false,
+    val platform: String = "",
+    val puan: Double? = null,
+    val posterUrl: String = "",
+    val detayUrl: String = "",
+    val kaynakAdi: String = ""
 )

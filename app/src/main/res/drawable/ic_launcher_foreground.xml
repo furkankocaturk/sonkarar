@@ -4,20 +4,18 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Neon karar çarkı sembolü, güvenli bölge içinde ortalanmıştır. -->
+    <!-- Sade ve profesyonel karar çarkı sembolü. -->
     <path
-        android:fillColor="#9D4EDD"
-        android:pathData="M54,30a24,24 0,0 1,24 24l-24,0z" />
+        android:fillColor="#6D5DF6"
+        android:fillType="evenOdd"
+        android:pathData="M54,28a26,26 0,1 0,0.1 0M54,36a18,18 0,1 1,-0.1 0" />
     <path
-        android:fillColor="#00E5C7"
-        android:pathData="M78,54a24,24 0,0 1,-24 24l0,-24z" />
+        android:fillColor="#16C7B7"
+        android:pathData="M54,32L72,54L54,76L36,54z" />
     <path
-        android:fillColor="#FF5DA2"
-        android:pathData="M54,78a24,24 0,0 1,-24 -24l24,0z" />
+        android:fillColor="#F8F7FC"
+        android:pathData="M54,48m-6,0a6,6 0,1 0,12 0a6,6 0,1 0,-12 0" />
     <path
-        android:fillColor="#FFD60A"
-        android:pathData="M30,54a24,24 0,0 1,24 -24l0,24z" />
-    <path
-        android:fillColor="#F2F2F7"
-        android:pathData="M54,50m-5,0a5,5 0,1 0,10 0a5,5 0,1 0,-10 0" />
+        android:fillColor="#F5B942"
+        android:pathData="M77,25l4,18l-18,-4z" />
 </vector>

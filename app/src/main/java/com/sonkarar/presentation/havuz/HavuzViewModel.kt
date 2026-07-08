@@ -71,6 +71,9 @@ class HavuzViewModel @Inject constructor(
     fun metniGuncelle(yeni: String) =
         _durum.update { it.copy(yeniOgeMetni = yeni) }
 
+    fun turuGuncelle(yeni: String) =
+        _durum.update { it.copy(yeniOgeTuru = yeni) }
+
     fun ogeEkle() {
         val anlik = _durum.value
         if (anlik.sinerjiId.isBlank()) return
@@ -79,9 +82,10 @@ class HavuzViewModel @Inject constructor(
                 sinerjiId = anlik.sinerjiId,
                 kategori = anlik.aktifKategori,
                 isim = anlik.yeniOgeMetni,
+                tur = anlik.yeniOgeTuru,
                 ekleyenKullanici = anlik.kullaniciId
             )) {
-                is Sonuc.Basarili -> _durum.update { it.copy(yeniOgeMetni = "") }
+                is Sonuc.Basarili -> _durum.update { it.copy(yeniOgeMetni = "", yeniOgeTuru = "") }
                 is Sonuc.Hata -> _durum.update { it.copy(hataMesaji = sonuc.mesaj) }
                 Sonuc.Yukleniyor -> Unit
             }

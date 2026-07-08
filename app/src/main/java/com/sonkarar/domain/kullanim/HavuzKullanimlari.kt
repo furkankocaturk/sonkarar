@@ -29,6 +29,7 @@ class HavuzaOgeEkleKullanimi @Inject constructor(
         sinerjiId: String,
         kategori: Kategori,
         isim: String,
+        tur: String = "",
         ekleyenKullanici: String
     ): Sonuc<Unit> {
         val temiz = isim.trim()
@@ -39,6 +40,7 @@ class HavuzaOgeEkleKullanimi @Inject constructor(
             id = "",
             kategori = kategori,
             isim = temiz,
+            tur = tur.trim(),
             ekleyenKullanici = ekleyenKullanici,
             agirlik = Sabitler.VARSAYILAN_AGIRLIK,
             disOneriMi = false

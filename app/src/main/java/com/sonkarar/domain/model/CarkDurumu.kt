@@ -10,5 +10,6 @@ data class CarkDurumu(
     val hedefAci: Double = 0.0,
     val kazananIsim: String = "",
     val kategori: Kategori = Kategori.YEMEK,
-    val tur: Long = 0L
+    val tur: Long = 0L,
+    val carkOgeleri: List<HavuzOgesi> = emptyList()
 )

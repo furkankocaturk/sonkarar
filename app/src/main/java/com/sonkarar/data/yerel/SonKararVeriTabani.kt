@@ -6,7 +6,7 @@ import com.sonkarar.data.yerel.varlik.HavuzOgesiVarligi
 
 @Database(
     entities = [HavuzOgesiVarligi::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class SonKararVeriTabani : RoomDatabase() {

@@ -13,6 +13,9 @@ interface SinerjiRepository {
      */
     suspend fun odaOlusturVeyaKatil(esEposta: String): Sonuc<String>
 
+    /** Kullanıcıyı eşleşme beklemeden tek kişilik kişisel alana alır. */
+    suspend fun tekBasinaBaslat(): Sonuc<String>
+
     fun sinerjiyiGozlemle(sinerjiId: String): Flow<Sonuc<Sinerji>>
 
     suspend fun carkDurumunuGuncelle(sinerjiId: String, durum: CarkDurumu): Sonuc<Unit>

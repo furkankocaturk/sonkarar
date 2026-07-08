@@ -1,13 +1,15 @@
 package com.sonkarar.presentation.tema
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val KoyuNeonSema = darkColorScheme(
-    primary = NeonMor,
-    secondary = NeonTurkuaz,
-    tertiary = NeonPembe,
+    primary = MarkaMor,
+    secondary = MarkaTurkuaz,
+    tertiary = MarkaPembe,
     background = ZeminSiyah,
     surface = YuzeyKoyu,
     surfaceVariant = YuzeyKoyu2,
@@ -18,14 +20,27 @@ private val KoyuNeonSema = darkColorScheme(
     error = HataKirmizi
 )
 
+private val AcikSema = lightColorScheme(
+    primary = MarkaMor,
+    secondary = MarkaTurkuaz,
+    tertiary = MarkaPembe,
+    background = ZeminAcik,
+    surface = YuzeyAcik,
+    surfaceVariant = YuzeyAcik2,
+    onPrimary = ZeminAcik,
+    onSecondary = ZeminAcik,
+    onBackground = MetinKoyu,
+    onSurface = MetinKoyu,
+    error = HataKirmizi
+)
+
 @Composable
 fun SonKararTemasi(
-    // Uygulama kimliği gereği her zaman koyu tema kullanılır.
-    koyuTema: Boolean = true,
+    koyuTema: Boolean = isSystemInDarkTheme(),
     icerik: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = KoyuNeonSema,
+        colorScheme = if (koyuTema) KoyuNeonSema else AcikSema,
         typography = SonKararTipografisi,
         content = icerik
     )

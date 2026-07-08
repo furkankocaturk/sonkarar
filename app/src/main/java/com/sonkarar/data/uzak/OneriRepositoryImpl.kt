@@ -68,18 +68,24 @@ class OneriRepositoryImpl @Inject constructor(
                     turKimlikleri = turKimlikleri
                 )
                 yanit.sonuclar
-                    .filter { it.baslik.isNotBlank() }
+                    .filter { it.baslik.isNotBlank() || it.ad.isNotBlank() }
                     .shuffled()
                     .take(adet)
                     .map { film ->
+                        val baslik = film.baslik.ifBlank { film.ad }
                         HavuzOgesi(
                             id = "oneri_${UUID.randomUUID()}",
                             kategori = Kategori.IZLENECEK,
-                            isim = film.baslik,
+                            isim = baslik,
                             tur = populerTurler.firstOrNull().orEmpty(),
                             ekleyenKullanici = "sistem",
                             agirlik = Sabitler.VARSAYILAN_AGIRLIK,
-                            disOneriMi = true
+                            disOneriMi = true,
+                            platform = "TMDB",
+                            puan = film.puan,
+                            posterUrl = film.posterYolu?.let { "https://image.tmdb.org/t/p/w500$it" }.orEmpty(),
+                            detayUrl = "https://www.themoviedb.org/movie/${film.id}?language=tr-TR",
+                            kaynakAdi = "TMDB"
                         )
                     }
             }
@@ -101,8 +107,15 @@ class OneriRepositoryImpl @Inject constructor(
                 tur = populerTurler.firstOrNull().orEmpty(),
                 ekleyenKullanici = "sistem",
                 agirlik = Sabitler.VARSAYILAN_AGIRLIK,
-                disOneriMi = true
+                disOneriMi = true,
+                detayUrl = yemekTarifiUrlOlustur(isim),
+                kaynakAdi = "Nefis Yemek Tarifleri"
             )
         }
+    }
+
+    private fun yemekTarifiUrlOlustur(isim: String): String {
+        val arama = java.net.URLEncoder.encode(isim, Charsets.UTF_8.name())
+        return "https://www.nefisyemektarifleri.com/arama/?s=$arama"
     }
 }

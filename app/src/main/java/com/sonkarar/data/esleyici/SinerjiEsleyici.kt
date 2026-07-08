@@ -28,7 +28,8 @@ fun CarkDurumuDto.domaineDonustur(): CarkDurumu = CarkDurumu(
     hedefAci = hedefAci,
     kazananIsim = kazananIsim,
     kategori = Kategori.anahtardan(kategori),
-    tur = tur
+    tur = tur,
+    carkOgeleri = carkOgeleri.map { it.domaineDonustur() }
 )
 
 fun CarkDurumu.dtoyaDonustur(): CarkDurumuDto = CarkDurumuDto(
@@ -37,5 +38,6 @@ fun CarkDurumu.dtoyaDonustur(): CarkDurumuDto = CarkDurumuDto(
     hedefAci = hedefAci,
     kazananIsim = kazananIsim,
     kategori = kategori.name,
-    tur = tur
+    tur = tur,
+    carkOgeleri = carkOgeleri.map { it.dtoyaDonustur() }
 )

@@ -12,7 +12,8 @@ data class CarkDurumuDto(
     val hedefAci: Double = 0.0,
     val kazananIsim: String = "",
     val kategori: String = "YEMEK",
-    val tur: Long = 0L
+    val tur: Long = 0L,
+    val carkOgeleri: List<HavuzOgesiDto> = emptyList()
 )
 
 data class SinerjiDto(

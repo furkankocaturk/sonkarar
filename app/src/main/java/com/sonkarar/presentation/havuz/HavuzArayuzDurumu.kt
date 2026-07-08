@@ -10,6 +10,7 @@ data class HavuzArayuzDurumu(
     val yemekler: List<HavuzOgesi> = emptyList(),
     val izlenecekler: List<HavuzOgesi> = emptyList(),
     val yeniOgeMetni: String = "",
+    val yeniOgeTuru: String = "",
     val hataMesaji: String? = null
 ) {
     val gorunenOgeler: List<HavuzOgesi>

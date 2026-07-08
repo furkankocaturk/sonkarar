@@ -15,6 +15,7 @@
     <string name="eslesme_aciklama">Eşinin e-posta adresini gir. İkiniz de birbirinizi eklediğinizde ortak odanız hazır olur.</string>
     <string name="es_eposta_etiketi">Eşinin E-posta Adresi</string>
     <string name="oda_olustur_katil">Ortak Oda Oluştur / Katıl</string>
+    <string name="tek_basina_kullan">Tek Başına Kullan</string>
     <string name="es_bekleniyor">Eş bekleniyor…</string>
     <string name="es_eposta_bos">Lütfen eşinin e-posta adresini girin.</string>
 
@@ -23,6 +24,7 @@
     <string name="sekme_yemekler">Yemekler</string>
     <string name="sekme_izlenecekler">İzlenecekler</string>
     <string name="yeni_oge_ipucu">Yeni bir seçenek yaz…</string>
+    <string name="yeni_tur_ipucu">Tür / etiket (örn. Komedi, İtalyan)</string>
     <string name="ekle">Ekle</string>
     <string name="ekleyen_bicimi">Ekleyen: %1$s</string>
     <string name="oge_silindi">Öge silindi</string>
@@ -36,6 +38,11 @@
     <string name="cark_donuyor">Çark dönüyor…</string>
     <string name="es_ceviriyor">Eşiniz çarkı çeviriyor…</string>
     <string name="sonuc_bicimi">Sonuç: %1$s</string>
+    <string name="platform_bicimi">Platform: %1$s</string>
+    <string name="puan_bicimi">Puan: %1$.1f</string>
+    <string name="kaynak_bicimi">Kaynak: %1$s</string>
+    <string name="detaylara_git">Detaylara Git</string>
+    <string name="tarife_git">Tarife Git</string>
     <string name="havuz_bos_uyari">Havuzda hiç seçenek yok. Önce havuza içerik ekleyin.</string>
     <string name="oneri_rozeti">öneri</string>
     <string name="havuza_git">Havuza Git</string>

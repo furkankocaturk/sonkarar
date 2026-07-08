@@ -10,8 +10,10 @@ import com.sonkarar.cekirdek.guvenliCagri
 import com.sonkarar.cekirdek.turkceMesaj
 import com.sonkarar.data.esleyici.domaineDonustur
 import com.sonkarar.data.esleyici.dtoyaDonustur
+import com.sonkarar.data.firestore.dto.HavuzOgesiDto
 import com.sonkarar.data.firestore.dto.CarkGecmisiKaydiDto
 import com.sonkarar.data.firestore.dto.SinerjiDto
+import com.sonkarar.data.varsayilan.OntanimliHavuz
 import com.sonkarar.domain.model.CarkDurumu
 import com.sonkarar.domain.model.Sinerji
 import com.sonkarar.domain.repository.SinerjiRepository
@@ -43,6 +45,7 @@ class SinerjiRepositoryImpl @Inject constructor(
             val sinerjiler = firestore.collection(Sabitler.KOLEKSIYON_SINERJILER)
 
             val karsiSinerji = karsiTaraf?.getString("sinerjiId")
+            var yeniOdaMi = false
             val sinerjiId: String = if (karsiTaraf != null && !karsiSinerji.isNullOrBlank()) {
                 sinerjiler.document(karsiSinerji)
                     .update("uyeler", FieldValue.arrayUnion(benimUid)).await()
@@ -50,6 +53,7 @@ class SinerjiRepositoryImpl @Inject constructor(
             } else {
                 val yeniBelge = sinerjiler.document()
                 yeniBelge.set(SinerjiDto(uyeler = listOf(benimUid))).await()
+                yeniOdaMi = true
                 yeniBelge.id
             }
 
@@ -59,8 +63,27 @@ class SinerjiRepositoryImpl @Inject constructor(
                     "sinerjiId" to sinerjiId
                 )
             ).await()
+            if (yeniOdaMi) {
+                varsayilanHavuzuYaz(sinerjiId, benimUid)
+            }
             sinerjiId
         }
+
+    override suspend fun tekBasinaBaslat(): Sonuc<String> = guvenliCagri {
+        val benimUid = kimlik.currentUser?.uid ?: error("Önce giriş yapmalısınız.")
+        val kullanicilar = firestore.collection(Sabitler.KOLEKSIYON_KULLANICILAR)
+        val sinerjiler = firestore.collection(Sabitler.KOLEKSIYON_SINERJILER)
+        val yeniBelge = sinerjiler.document()
+        yeniBelge.set(SinerjiDto(uyeler = listOf(benimUid))).await()
+        kullanicilar.document(benimUid).update(
+            mapOf(
+                "esEposta" to "",
+                "sinerjiId" to yeniBelge.id
+            )
+        ).await()
+        varsayilanHavuzuYaz(yeniBelge.id, benimUid)
+        yeniBelge.id
+    }
 
     override fun sinerjiyiGozlemle(sinerjiId: String): Flow<Sonuc<Sinerji>> = callbackFlow {
         val dinleyici = firestore.collection(Sabitler.KOLEKSIYON_SINERJILER)
@@ -98,5 +121,33 @@ class SinerjiRepositoryImpl @Inject constructor(
         )
         firestore.collection(Sabitler.KOLEKSIYON_SINERJILER).document(sinerjiId)
             .update("carkGecmisi", FieldValue.arrayUnion(kayit)).await()
+    }
+
+    private suspend fun varsayilanHavuzuYaz(sinerjiId: String, kullaniciId: String) {
+        val havuz = firestore.collection(Sabitler.KOLEKSIYON_SINERJILER)
+            .document(sinerjiId)
+            .collection(Sabitler.ALT_KOLEKSIYON_HAVUZ)
+        val batch = firestore.batch()
+        OntanimliHavuz.ogeleriOlustur(kullaniciId).forEach { oge ->
+            val belge = havuz.document()
+            batch.set(
+                belge,
+                HavuzOgesiDto(
+                    id = belge.id,
+                    kategori = oge.kategori.name,
+                    isim = oge.isim,
+                    tur = oge.tur,
+                    ekleyenKullanici = oge.ekleyenKullanici,
+                    agirlik = oge.agirlik,
+                    disOneriMi = oge.disOneriMi,
+                    platform = oge.platform,
+                    puan = oge.puan,
+                    posterUrl = oge.posterUrl,
+                    detayUrl = oge.detayUrl,
+                    kaynakAdi = oge.kaynakAdi
+                )
+            )
+        }
+        batch.commit().await()
     }
 }

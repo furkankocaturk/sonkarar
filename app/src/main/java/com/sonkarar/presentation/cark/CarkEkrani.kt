@@ -4,16 +4,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -33,13 +40,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.sonkarar.R
 import com.sonkarar.cekirdek.Kategori
+import com.sonkarar.domain.model.HavuzOgesi
 import com.sonkarar.presentation.ortak.KonfetiEfekti
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,7 +126,7 @@ fun CarkEkrani(
                             modifier = Modifier.size(48.dp)
                         )
                         CarkCizimi(
-                            ogeler = durum.gorunenOgeler,
+                            ogeler = durum.cizilecekOgeler,
                             hedefAci = durum.hedefAci,
                             donuyorMu = durum.donuyorMu,
                             cizgiGecildi = { haptik.tik() },
@@ -128,12 +138,7 @@ fun CarkEkrani(
                 }
 
                 if (durum.sonucGosteriliyor && durum.kazananIsim != null) {
-                    Text(
-                        text = stringResource(R.string.sonuc_bicimi, durum.kazananIsim!!),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        textAlign = TextAlign.Center
-                    )
+                    SonucKarti(oge = durum.kazananOge)
                 }
 
                 Button(
@@ -155,6 +160,94 @@ fun CarkEkrani(
                     tetikleyici = durum.konfetiTetikleyici,
                     modifier = Modifier.fillMaxSize()
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SonucKarti(oge: HavuzOgesi?) {
+    if (oge == null) return
+    val uriAcici = LocalUriHandler.current
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (oge.posterUrl.isNotBlank()) {
+                AsyncImage(
+                    model = oge.posterUrl,
+                    contentDescription = oge.isim,
+                    modifier = Modifier
+                        .width(86.dp)
+                        .height(124.dp)
+                )
+                Spacer(Modifier.width(16.dp))
+            } else if (oge.kategori == Kategori.IZLENECEK) {
+                Box(
+                    modifier = Modifier
+                        .width(86.dp)
+                        .height(124.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Image,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(42.dp)
+                    )
+                }
+                Spacer(Modifier.width(16.dp))
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.sonuc_bicimi, oge.isim),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+                if (oge.tur.isNotBlank()) {
+                    Text(
+                        text = oge.tur,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (oge.platform.isNotBlank()) {
+                    Text(
+                        text = stringResource(R.string.platform_bicimi, oge.platform),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                if (oge.puan != null) {
+                    Text(
+                        text = stringResource(R.string.puan_bicimi, oge.puan),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                if (oge.kaynakAdi.isNotBlank()) {
+                    Text(
+                        text = stringResource(R.string.kaynak_bicimi, oge.kaynakAdi),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (oge.detayUrl.isNotBlank()) {
+                    Button(
+                        onClick = { uriAcici.openUri(oge.detayUrl) },
+                        modifier = Modifier.padding(top = 12.dp)
+                    ) {
+                        val metin = if (oge.kategori == Kategori.YEMEK) {
+                            stringResource(R.string.tarife_git)
+                        } else {
+                            stringResource(R.string.detaylara_git)
+                        }
+                        Text(metin)
+                    }
+                }
             }
         }
     }

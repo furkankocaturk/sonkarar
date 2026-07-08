@@ -12,7 +12,12 @@ fun HavuzOgesiDto.domaineDonustur(): HavuzOgesi = HavuzOgesi(
     tur = tur,
     ekleyenKullanici = ekleyenKullanici,
     agirlik = agirlik,
-    disOneriMi = disOneriMi
+    disOneriMi = disOneriMi,
+    platform = platform,
+    puan = puan,
+    posterUrl = posterUrl,
+    detayUrl = detayUrl,
+    kaynakAdi = kaynakAdi
 )
 
 fun HavuzOgesi.dtoyaDonustur(): HavuzOgesiDto = HavuzOgesiDto(
@@ -22,7 +27,12 @@ fun HavuzOgesi.dtoyaDonustur(): HavuzOgesiDto = HavuzOgesiDto(
     tur = tur,
     ekleyenKullanici = ekleyenKullanici,
     agirlik = agirlik,
-    disOneriMi = disOneriMi
+    disOneriMi = disOneriMi,
+    platform = platform,
+    puan = puan,
+    posterUrl = posterUrl,
+    detayUrl = detayUrl,
+    kaynakAdi = kaynakAdi
 )
 
 fun HavuzOgesi.varligaDonustur(sinerjiId: String): HavuzOgesiVarligi = HavuzOgesiVarligi(
@@ -33,7 +43,12 @@ fun HavuzOgesi.varligaDonustur(sinerjiId: String): HavuzOgesiVarligi = HavuzOges
     tur = tur,
     ekleyenKullanici = ekleyenKullanici,
     agirlik = agirlik,
-    disOneriMi = disOneriMi
+    disOneriMi = disOneriMi,
+    platform = platform,
+    puan = puan,
+    posterUrl = posterUrl,
+    detayUrl = detayUrl,
+    kaynakAdi = kaynakAdi
 )
 
 fun HavuzOgesiVarligi.domaineDonustur(): HavuzOgesi = HavuzOgesi(
@@ -43,5 +58,10 @@ fun HavuzOgesiVarligi.domaineDonustur(): HavuzOgesi = HavuzOgesi(
     tur = tur,
     ekleyenKullanici = ekleyenKullanici,
     agirlik = agirlik,
-    disOneriMi = disOneriMi
+    disOneriMi = disOneriMi,
+    platform = platform,
+    puan = puan,
+    posterUrl = posterUrl,
+    detayUrl = detayUrl,
+    kaynakAdi = kaynakAdi
 )

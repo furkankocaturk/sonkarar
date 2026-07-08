@@ -98,6 +98,7 @@ class CarkViewModel @Inject constructor(
                 hedefAci = carkDurumu.hedefAci.toFloat(),
                 benCeviriyorum = carkDurumu.ceviren == benimUid,
                 kazananIsim = carkDurumu.kazananIsim,
+                carkOgeleri = carkDurumu.carkOgeleri,
                 sonucGosteriliyor = false
             )
         }
@@ -124,7 +125,14 @@ class CarkViewModel @Inject constructor(
 
     fun kategoriDegistir(kategori: Kategori) {
         if (_durum.value.donuyorMu) return
-        _durum.update { it.copy(aktifKategori = kategori, sonucGosteriliyor = false) }
+        _durum.update {
+            it.copy(
+                aktifKategori = kategori,
+                sonucGosteriliyor = false,
+                kazananIsim = null,
+                carkOgeleri = emptyList()
+            )
+        }
     }
 
     fun cevir() {
@@ -141,7 +149,8 @@ class CarkViewModel @Inject constructor(
                         hedefAci = veri.hedefAci,
                         kazananIsim = veri.kazanan.isim,
                         kategori = anlik.aktifKategori,
-                        tur = islenenTur + 1
+                        tur = islenenTur + 1,
+                        carkOgeleri = veri.nihaiListe
                     )
                     val yazma = carkDurumunuGuncelle(anlik.sinerjiId, guncelDurum)
                     if (yazma is Sonuc.Hata) {

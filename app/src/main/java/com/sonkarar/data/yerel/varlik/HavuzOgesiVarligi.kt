@@ -12,5 +12,10 @@ data class HavuzOgesiVarligi(
     val tur: String,
     val ekleyenKullanici: String,
     val agirlik: Int,
-    val disOneriMi: Boolean
+    val disOneriMi: Boolean,
+    val platform: String,
+    val puan: Double?,
+    val posterUrl: String,
+    val detayUrl: String,
+    val kaynakAdi: String
 )

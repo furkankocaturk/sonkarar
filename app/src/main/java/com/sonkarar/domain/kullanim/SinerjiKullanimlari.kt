@@ -20,6 +20,12 @@ class OdaOlusturVeyaKatilKullanimi @Inject constructor(
     }
 }
 
+class TekBasinaBaslatKullanimi @Inject constructor(
+    private val sinerjiRepository: SinerjiRepository
+) {
+    suspend operator fun invoke(): Sonuc<String> = sinerjiRepository.tekBasinaBaslat()
+}
+
 class SinerjiyiGozlemleKullanimi @Inject constructor(
     private val sinerjiRepository: SinerjiRepository
 ) {

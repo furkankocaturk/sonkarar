@@ -135,6 +135,8 @@ fun HavuzEkrani(
             EkleCubugu(
                 metin = durum.yeniOgeMetni,
                 metniGuncelle = viewModel::metniGuncelle,
+                tur = durum.yeniOgeTuru,
+                turuGuncelle = viewModel::turuGuncelle,
                 ekle = viewModel::ogeEkle
             )
         }
@@ -201,6 +203,26 @@ private fun OgeSatiri(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
+                if (oge.tur.isNotBlank()) {
+                    Text(
+                        text = oge.tur,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+                if (oge.platform.isNotBlank() || oge.puan != null) {
+                    val bilgi = listOfNotNull(
+                        oge.platform.takeIf { it.isNotBlank() },
+                        oge.puan?.let { stringResource(R.string.puan_bicimi, it) }
+                    ).joinToString(" • ")
+                    Text(
+                        text = bilgi,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
                 val ekleyen = if (oge.disOneriMi) {
                     stringResource(R.string.oneri_rozeti)
                 } else {
@@ -221,6 +243,8 @@ private fun OgeSatiri(
 private fun EkleCubugu(
     metin: String,
     metniGuncelle: (String) -> Unit,
+    tur: String,
+    turuGuncelle: (String) -> Unit,
     ekle: () -> Unit
 ) {
     Row(
@@ -230,13 +254,24 @@ private fun EkleCubugu(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        OutlinedTextField(
-            value = metin,
-            onValueChange = metniGuncelle,
-            label = { Text(stringResource(R.string.yeni_oge_ipucu)) },
-            singleLine = true,
-            modifier = Modifier.weight(1f)
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            OutlinedTextField(
+                value = metin,
+                onValueChange = metniGuncelle,
+                label = { Text(stringResource(R.string.yeni_oge_ipucu)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = tur,
+                onValueChange = turuGuncelle,
+                label = { Text(stringResource(R.string.yeni_tur_ipucu)) },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+        }
         TextButton(onClick = ekle) {
             Text(
                 text = stringResource(R.string.ekle),

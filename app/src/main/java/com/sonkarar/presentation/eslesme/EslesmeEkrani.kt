@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -89,6 +90,14 @@ fun EslesmeEkrani(
                         .padding(top = 24.dp)
                 ) {
                     Text(stringResource(R.string.oda_olustur_katil))
+                }
+                TextButton(
+                    onClick = viewModel::tekBasinaKullan,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Text(stringResource(R.string.tek_basina_kullan))
                 }
             }
         }
