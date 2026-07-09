@@ -1,0 +1,83 @@
+<resources>
+    <string name="uygulama_adi">SonKarar</string>
+    <string name="slogan">Kararı çarka bırakın</string>
+
+    <!-- Firebase Web istemci kimliği (Google ile Giriş için). Firebase konsolundan alınır. -->
+    <string name="varsayilan_web_istemci_kimligi">YER_TUTUCU_WEB_ISTEMCI_KIMLIGI.apps.googleusercontent.com</string>
+
+    <!-- Giriş -->
+    <string name="google_ile_giris">Google ile Giriş Yap</string>
+    <string name="girissiz_devam">Girişsiz Devam Et (Çevrimdışı)</string>
+    <string name="giris_hatasi">Giriş yapılamadı. Lütfen tekrar deneyin.</string>
+    <string name="giris_yapiliyor">Giriş yapılıyor…</string>
+
+    <!-- Eşleşme -->
+    <string name="eslesme_baslik">Eşinle Eşleş</string>
+    <string name="eslesme_aciklama">Eşinin e-posta adresini gir. İkiniz de birbirinizi eklediğinizde ortak odanız hazır olur.</string>
+    <string name="es_eposta_etiketi">Eşinin E-posta Adresi</string>
+    <string name="oda_olustur_katil">Ortak Oda Oluştur / Katıl</string>
+    <string name="tek_basina_kullan">Tek Başına Kullan</string>
+    <string name="es_bekleniyor">Eş bekleniyor…</string>
+    <string name="es_eposta_bos">Lütfen eşinin e-posta adresini girin.</string>
+
+    <!-- Havuz -->
+    <string name="havuz_baslik">Ortak Havuz</string>
+    <string name="sekme_yemekler">Yemekler</string>
+    <string name="sekme_izlenecekler">İzlenecekler</string>
+    <string name="yeni_oge_ipucu">Yeni bir seçenek yaz…</string>
+    <string name="yeni_tur_ipucu">Tür / etiket (örn. Komedi, İtalyan)</string>
+    <string name="ekle">Ekle</string>
+    <string name="ekleyen_bicimi">Ekleyen: %1$s</string>
+    <string name="oge_silindi">Öge silindi</string>
+    <string name="geri_al">Geri Al</string>
+    <string name="havuz_bos">Henüz bir şey eklemediniz. İlk seçeneği ekleyin!</string>
+    <string name="sil">Sil</string>
+
+    <!-- Çarklar (liste) -->
+    <string name="carklar_baslik">Çarklarım</string>
+    <string name="yeni_cark">Yeni Çark</string>
+    <string name="cark_adi">Çark adı (örn. Nereye gidelim?)</string>
+    <string name="cark_tipi">Çark tipi</string>
+    <string name="yeni_cark_ipucu">Çark, varsayılan olarak \"Evet\" ve \"Hayır\" seçenekleriyle oluşturulur. Sonra istediğini ekleyebilirsin.</string>
+    <string name="olustur">Oluştur</string>
+
+    <!-- Çark -->
+    <string name="cark_baslik">Karar Çarkı</string>
+    <string name="cevir">ÇEVİR</string>
+    <string name="cevir_ipucu">Çarkı parmağınla çevir 👆</string>
+    <string name="cark_donuyor">Çark dönüyor…</string>
+    <string name="es_ceviriyor">Eşiniz çarkı çeviriyor…</string>
+    <string name="sonuc_bicimi">Sonuç: %1$s</string>
+    <string name="platform_bicimi">Platform: %1$s</string>
+    <string name="puan_bicimi">Puan: %1$.1f</string>
+    <string name="kaynak_bicimi">Kaynak: %1$s</string>
+    <string name="detaylara_git">Detaylara Git</string>
+    <string name="tarife_git">Tarife Git</string>
+    <string name="havuz_bos_uyari">Havuzda hiç seçenek yok. Önce havuza içerik ekleyin.</string>
+    <string name="oneri_rozeti">öneri</string>
+    <string name="havuza_git">Havuza Git</string>
+    <string name="kategori_yemek">Yemek</string>
+    <string name="kategori_izlenecek">İzlenecek</string>
+
+    <!-- Geçmiş -->
+    <string name="gecmis_baslik">Karar Geçmişi</string>
+    <string name="gecmis_bos">Henüz bir karar verilmedi. Çarkı çevirin!</string>
+    <string name="gecmise_git">Karar Geçmişi</string>
+
+    <!-- Favori / Azalt -->
+    <string name="favori_ekle">Favorilere ekle</string>
+    <string name="favori_cikar">Favorilerden çıkar</string>
+    <string name="bunu_azalt">Bunu Azalt</string>
+    <string name="oge_azaltildi">Bu ögenin çıkma olasılığı azaltıldı</string>
+
+    <!-- Genel -->
+    <string name="tekrar_dene">Tekrar Dene</string>
+    <string name="cikis_yap">Çıkış Yap</string>
+    <string name="menu">Menü</string>
+    <string name="tema">Tema</string>
+    <string name="cikmak_icin_tekrar">Çıkmak için tekrar geri tuşuna basın</string>
+    <string name="baglanti_hatasi">İnternet bağlantısı kurulamadı. Bağlantınızı kontrol edin.</string>
+    <string name="yukleniyor">Yükleniyor…</string>
+    <string name="geri">Geri</string>
+    <string name="kapat">Kapat</string>
+</resources>
