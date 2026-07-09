@@ -10,7 +10,8 @@ data class CarkGecmisiKaydiDto(
 data class CarkDurumuDto(
     val durum: String = "BOSTA",
     val ceviren: String = "",
-    val hedefAci: Double = 0.0,
+    val carkId: String = "",
+    val finalAci: Double = 0.0,
     val kazananIsim: String = "",
     val kategori: String = "YEMEK",
     val tur: Long = 0L,

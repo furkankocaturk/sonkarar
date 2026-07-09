@@ -2,43 +2,42 @@ package com.sonkarar.presentation.tema
 
 import androidx.compose.ui.graphics.Color
 
-// Marka vurgu renkleri (premium, canlı ama göz yormayan)
-val MarkaMor = Color(0xFF7C5CFF)
-val MarkaMorAcik = Color(0xFF9E86FF)
-val MarkaTurkuaz = Color(0xFF19D3C5)
-val MarkaPembe = Color(0xFFFF6FA5)
-val MarkaSari = Color(0xFFFFC24B)
+// Yumuşak, sıcak marka renkleri (mor yok)
+val Mercan = Color(0xFFF4715E)
+val MercanKoyu = Color(0xFFE85C48)
+val Teal = Color(0xFF2BB3A3)
+val Amber = Color(0xFFF3A64B)
 
-// Koyu tema yüzeyleri
-val ZeminSiyah = Color(0xFF0C0B17)
-val ZeminSiyah2 = Color(0xFF141326)
-val YuzeyKoyu = Color(0xFF17162B)
-val YuzeyKoyu2 = Color(0xFF201F3B)
-val MetinBeyaz = Color(0xFFF4F3FB)
-val MetinSolgun = Color(0xFFA6A3C4)
+// Koyu tema — sıcak, yumuşak antrasit (mavi/mor değil)
+val ZeminKoyu = Color(0xFF14110F)
+val ZeminKoyu2 = Color(0xFF1C1815)
+val YuzeyKoyu = Color(0xFF211C19)
+val YuzeyKoyu2 = Color(0xFF2B2521)
+val MetinAcik = Color(0xFFF3EEE9)
+val MetinSolgunKoyu = Color(0xFFAEA49B)
 
-// Açık tema yüzeyleri
-val ZeminAcik = Color(0xFFF6F5FD)
-val ZeminAcik2 = Color(0xFFEDEAFB)
+// Açık tema — krem, sakin
+val ZeminAcik = Color(0xFFFBF7F2)
+val ZeminAcik2 = Color(0xFFF3ECE3)
 val YuzeyAcik = Color(0xFFFFFFFF)
-val YuzeyAcik2 = Color(0xFFF0EDFB)
-val MetinKoyu = Color(0xFF1A1830)
-val MetinSolgunAcik = Color(0xFF6B6890)
+val YuzeyAcik2 = Color(0xFFF2EBE2)
+val MetinKoyu = Color(0xFF2A2521)
+val MetinSolgunAcik = Color(0xFF7C7269)
 
-val HataKirmizi = Color(0xFFFF4D6D)
+val HataKirmizi = Color(0xFFE5484D)
 
-// Çark dilim paleti — 8 belirgin, premium ton (okunurluk için kontrastlı)
+// Çark dilim paleti — sıcaktan soğuğa yumuşak geçen uyumlu 8 ton
 val CarkPaleti = listOf(
-    Color(0xFF7C5CFF), // mor
-    Color(0xFF19D3C5), // turkuaz
-    Color(0xFFFF6FA5), // pembe
-    Color(0xFFFFC24B), // sarı
-    Color(0xFF4CC0FF), // mavi
-    Color(0xFF7BD88F), // yeşil
-    Color(0xFFFF8A5B), // turuncu
-    Color(0xFFB98BFF)  // lila
+    Color(0xFFF4715E), // mercan
+    Color(0xFFFF9F5A), // turuncu
+    Color(0xFFFFC65A), // amber
+    Color(0xFF9AD16E), // yeşil
+    Color(0xFF33B7A6), // teal
+    Color(0xFF4FA3E3), // gök mavisi
+    Color(0xFF6D8BE0), // yumuşak mavi
+    Color(0xFFF06E9E)  // pembe
 )
 
-// Arka plan degradeleri
-val KoyuZeminDegrade = listOf(Color(0xFF0C0B17), Color(0xFF191634), Color(0xFF0C0B17))
-val AcikZeminDegrade = listOf(Color(0xFFF6F5FD), Color(0xFFE9E5FB), Color(0xFFF6F5FD))
+// Arka plan degradeleri (yumuşak)
+val KoyuZeminDegrade = listOf(Color(0xFF15110F), Color(0xFF1E1916), Color(0xFF15110F))
+val AcikZeminDegrade = listOf(Color(0xFFFBF7F2), Color(0xFFF4EDE4), Color(0xFFFBF7F2))

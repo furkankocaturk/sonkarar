@@ -34,7 +34,7 @@ class CarkViewModel @Inject constructor(
     private val havuzuGozlemle: HavuzuGozlemleKullanimi,
     private val senkronizasyonuBaslat: SenkronizasyonuBaslatKullanimi,
     private val sinerjiyiGozlemle: SinerjiyiGozlemleKullanimi,
-    private val carkiCevir: CarkiCevirKullanimi,
+    private val carkiHazirla: CarkiCevirKullanimi,
     private val carkDurumunuGuncelle: CarkDurumunuGuncelleKullanimi,
     private val gecmiseKayitEkle: GecmiseKayitEkleKullanimi,
     private val ogeyiAzalt: OgeyiAzaltKullanimi
@@ -48,11 +48,11 @@ class CarkViewModel @Inject constructor(
     private var carkGecmisi: List<CarkGecmisiKaydi> = emptyList()
     private var islenenTur: Long = -1L
     private var akislarBaslatildi = false
+    private var listeHazirlaniyor = false
 
     init {
         viewModelScope.launch {
-            val cark = carkGetir(carkId)
-            _durum.update { it.copy(cark = cark) }
+            _durum.update { it.copy(cark = carkGetir(carkId)) }
         }
         viewModelScope.launch {
             aktifKullaniciyiGozlemle()
@@ -76,40 +76,54 @@ class CarkViewModel @Inject constructor(
         viewModelScope.launch { senkronizasyonuBaslat(sinerjiId, carkId).collect {} }
         viewModelScope.launch {
             havuzuGozlemle(sinerjiId, carkId).collect { liste ->
-                _durum.update { it.copy(ogeler = liste) }
+                _durum.update { it.copy(ogeSayisi = liste.size) }
+                // Dönmüyorken çark listesini (ceza + öneri + karışım) tazele.
+                if (!_durum.value.donuyorMu) listeyiTazele(sinerjiId)
             }
         }
         viewModelScope.launch {
             sinerjiyiGozlemle(sinerjiId).collect { sonuc ->
                 if (sonuc is Sonuc.Basarili) {
                     carkGecmisi = sonuc.veri.carkGecmisi
-                    carkDurumunuIsle(sonuc.veri.carkDurumu)
+                    uzaktanDurumIsle(sonuc.veri.carkDurumu)
                 }
             }
         }
     }
 
-    private fun carkDurumunuIsle(carkDurumu: CarkDurumu) {
+    private fun listeyiTazele(sinerjiId: String) {
+        val cark = _durum.value.cark ?: return
+        if (listeHazirlaniyor) return
+        listeHazirlaniyor = true
+        viewModelScope.launch {
+            when (val s = carkiHazirla(sinerjiId, cark, carkGecmisi)) {
+                is Sonuc.Basarili -> _durum.update { it.copy(carkOgeleri = s.veri) }
+                is Sonuc.Hata -> Unit
+                Sonuc.Yukleniyor -> Unit
+            }
+            listeHazirlaniyor = false
+        }
+    }
+
+    /** Eşin (uzaktaki cihazın) başlattığı çevirmeyi işle. */
+    private fun uzaktanDurumIsle(carkDurumu: CarkDurumu) {
         if (carkDurumu.asama != CarkAsamasi.CEVRILIYOR) return
         if (carkDurumu.tur == islenenTur) return
-        // Yalnızca bu çarka ait durum güncellemesini işle.
-        if (carkDurumu.carkOgeleri.isNotEmpty() &&
-            carkDurumu.carkOgeleri.none { it.carkId == carkId || it.carkId.isBlank() }
-        ) return
+        if (carkDurumu.carkId != carkId) return
+        if (carkDurumu.ceviren == _durum.value.kullaniciId) return // kendi çevirmemiz
         islenenTur = carkDurumu.tur
 
-        val benimUid = _durum.value.kullaniciId
         _durum.update {
             it.copy(
                 donuyorMu = true,
-                hedefAci = carkDurumu.hedefAci.toFloat(),
-                benCeviriyorum = carkDurumu.ceviren == benimUid,
+                benCeviriyorum = false,
+                carkOgeleri = carkDurumu.carkOgeleri.ifEmpty { it.carkOgeleri },
                 kazananIsim = carkDurumu.kazananIsim,
-                carkOgeleri = carkDurumu.carkOgeleri,
-                sonucGosteriliyor = false
+                sonucGosteriliyor = false,
+                disHedefAci = carkDurumu.finalAci.toFloat(),
+                disTur = carkDurumu.tur
             )
         }
-
         viewModelScope.launch {
             delay(CARK_ANIMASYON_SURESI_MS.toLong())
             _durum.update {
@@ -119,44 +133,54 @@ class CarkViewModel @Inject constructor(
                     konfetiTetikleyici = carkDurumu.tur
                 )
             }
-            val cark = _durum.value.cark
-            if (carkDurumu.ceviren == benimUid && cark != null) {
-                gecmiseKayitEkle(
-                    _durum.value.sinerjiId,
-                    cark.carkId,
-                    cark.kategori,
-                    carkDurumu.kazananIsim
-                )
-            }
         }
     }
 
-    fun cevir() {
+    /** Buton ile otomatik çevirme (rastgele fırlatma). */
+    fun otomatikCevir() {
+        if (!_durum.value.cevrilebilir) return
+        _durum.update { it.copy(otomatikTetik = it.otomatikTetik + 1) }
+    }
+
+    /** Çevirme başladı (parmakla veya butonla). */
+    fun cevirmeBasladi() {
+        _durum.update { it.copy(donuyorMu = true, benCeviriyorum = true, sonucGosteriliyor = false) }
+    }
+
+    /** Yerel çevirme tamamlandı; göstergenin altındaki kazandı. */
+    fun yerelCevrildi(kazananIndeks: Int, finalAci: Float) {
         val anlik = _durum.value
         val cark = anlik.cark ?: return
-        if (anlik.donuyorMu || anlik.sinerjiId.isBlank()) return
+        val kazanan = anlik.carkOgeleri.getOrNull(kazananIndeks) ?: return
+        val yeniTur = islenenTur + 1
+        islenenTur = yeniTur
 
+        _durum.update {
+            it.copy(
+                donuyorMu = false,
+                kazananIsim = kazanan.isim,
+                sonucGosteriliyor = true,
+                konfetiTetikleyici = yeniTur
+            )
+        }
         viewModelScope.launch {
-            when (val sonuc = carkiCevir(anlik.sinerjiId, cark, carkGecmisi)) {
-                is Sonuc.Basarili -> {
-                    val veri = sonuc.veri
-                    val guncelDurum = CarkDurumu(
-                        asama = CarkAsamasi.CEVRILIYOR,
-                        ceviren = anlik.kullaniciId,
-                        hedefAci = veri.hedefAci,
-                        kazananIsim = veri.kazanan.isim,
-                        kategori = cark.kategori,
-                        tur = islenenTur + 1,
-                        carkOgeleri = veri.nihaiListe
-                    )
-                    val yazma = carkDurumunuGuncelle(anlik.sinerjiId, guncelDurum)
-                    if (yazma is Sonuc.Hata) {
-                        _durum.update { it.copy(hataMesaji = yazma.mesaj) }
-                    }
-                }
-                is Sonuc.Hata -> _durum.update { it.copy(hataMesaji = sonuc.mesaj) }
-                Sonuc.Yukleniyor -> Unit
-            }
+            gecmiseKayitEkle(anlik.sinerjiId, cark.carkId, cark.kategori, kazanan.isim)
+            // Eş cihaza da bildir.
+            carkDurumunuGuncelle(
+                anlik.sinerjiId,
+                CarkDurumu(
+                    asama = CarkAsamasi.CEVRILIYOR,
+                    ceviren = anlik.kullaniciId,
+                    carkId = cark.carkId,
+                    finalAci = finalAci.toDouble(),
+                    kazananIsim = kazanan.isim,
+                    kategori = cark.kategori,
+                    tur = yeniTur,
+                    carkOgeleri = anlik.carkOgeleri
+                )
+            )
+            // Sonraki çevirme için listeyi tazele.
+            listeyiTazele(anlik.sinerjiId)
         }
     }
 
@@ -167,9 +191,7 @@ class CarkViewModel @Inject constructor(
         viewModelScope.launch {
             when (val sonuc = ogeyiAzalt(anlik.sinerjiId, oge)) {
                 is Sonuc.Hata -> _durum.update { it.copy(hataMesaji = sonuc.mesaj) }
-                else -> _durum.update {
-                    it.copy(bilgiMesaji = "Bu ögenin çıkma olasılığı azaltıldı")
-                }
+                else -> _durum.update { it.copy(bilgiMesaji = "Bu ögenin çıkma olasılığı azaltıldı") }
             }
         }
     }

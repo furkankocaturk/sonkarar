@@ -2,7 +2,6 @@ package com.sonkarar.presentation.carklar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sonkarar.cekirdek.Kategori
 import com.sonkarar.cekirdek.TemaModu
 import com.sonkarar.cekirdek.Sonuc
 import com.sonkarar.domain.kullanim.CarkEkleKullanimi
@@ -23,7 +22,6 @@ data class CarkListesiArayuzDurumu(
     val yukleniyor: Boolean = true,
     val eklemeAcik: Boolean = false,
     val yeniAd: String = "",
-    val yeniKategori: Kategori = Kategori.GENEL,
     val hataMesaji: String? = null,
     val cikisYapildi: Boolean = false
 )
@@ -48,15 +46,14 @@ class CarkListesiViewModel @Inject constructor(
         }
     }
 
-    fun eklemeyiAc() = _durum.update { it.copy(eklemeAcik = true, yeniAd = "", yeniKategori = Kategori.GENEL) }
+    fun eklemeyiAc() = _durum.update { it.copy(eklemeAcik = true, yeniAd = "") }
     fun eklemeyiKapat() = _durum.update { it.copy(eklemeAcik = false) }
     fun adGuncelle(yeni: String) = _durum.update { it.copy(yeniAd = yeni) }
-    fun kategoriGuncelle(kategori: Kategori) = _durum.update { it.copy(yeniKategori = kategori) }
 
     fun carkOlustur() {
         val anlik = _durum.value
         viewModelScope.launch {
-            when (val sonuc = carkEkle(anlik.yeniAd, anlik.yeniKategori)) {
+            when (val sonuc = carkEkle(anlik.yeniAd)) {
                 is Sonuc.Basarili -> _durum.update { it.copy(eklemeAcik = false, yeniAd = "") }
                 is Sonuc.Hata -> _durum.update { it.copy(hataMesaji = sonuc.mesaj) }
                 Sonuc.Yukleniyor -> Unit

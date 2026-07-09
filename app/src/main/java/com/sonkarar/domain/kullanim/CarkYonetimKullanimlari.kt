@@ -1,6 +1,5 @@
 package com.sonkarar.domain.kullanim
 
-import com.sonkarar.cekirdek.Kategori
 import com.sonkarar.cekirdek.Sonuc
 import com.sonkarar.domain.model.Cark
 import com.sonkarar.domain.repository.CarkRepository
@@ -22,8 +21,7 @@ class CarkGetirKullanimi @Inject constructor(
 class CarkEkleKullanimi @Inject constructor(
     private val carkRepository: CarkRepository
 ) {
-    suspend operator fun invoke(ad: String, kategori: Kategori): Sonuc<String> =
-        carkRepository.carkEkle(ad, kategori)
+    suspend operator fun invoke(ad: String): Sonuc<String> = carkRepository.carkEkle(ad)
 }
 
 class CarkSilKullanimi @Inject constructor(

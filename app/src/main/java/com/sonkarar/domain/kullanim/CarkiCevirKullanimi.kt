@@ -10,26 +10,21 @@ import com.sonkarar.domain.repository.OneriRepository
 import javax.inject.Inject
 import kotlin.random.Random
 
-/** Çark çevirme hesabının çıktısı: nihai liste, kazanan ve hedef açı. */
-data class CarkSonucu(
-    val nihaiListe: List<HavuzOgesi>,
-    val kazanan: HavuzOgesi,
-    val kazananIndeks: Int,
-    val hedefAci: Double
-)
-
+/**
+ * Çevirme için çarkın GÖRSEL listesini hazırlar (zaman cezası uygulanmış +
+ * dış öneriler eklenmiş + okunurluk için sınırlanmış). Kazananı SEÇMEZ;
+ * kazanan, fiziksel dönüş sonrası göstergenin altına denk gelen dilimdir.
+ */
 class CarkiCevirKullanimi @Inject constructor(
     private val havuzRepository: HavuzRepository,
-    private val oneriRepository: OneriRepository,
-    private val agirlikliSecimYap: AgirlikliSecimYap
+    private val oneriRepository: OneriRepository
 ) {
     suspend operator fun invoke(
         sinerjiId: String,
         cark: Cark,
         carkGecmisi: List<CarkGecmisiKaydi>,
         rastgele: Random = Random.Default
-    ): Sonuc<CarkSonucu> {
-        // 1) Havuzu çek
+    ): Sonuc<List<HavuzOgesi>> {
         val havuzSonuc = havuzRepository.ogeleriGetir(sinerjiId, cark.carkId)
         val temelHavuz = when (havuzSonuc) {
             is Sonuc.Basarili -> havuzSonuc.veri
@@ -37,10 +32,8 @@ class CarkiCevirKullanimi @Inject constructor(
             Sonuc.Yukleniyor -> return Sonuc.Yukleniyor
         }
 
-        // 2) Zaman cezası uygula (bu çarka özel geçmişe göre)
         val cezaliHavuz = ZamanCezasi.uygula(temelHavuz, carkGecmisi, cark.carkId)
 
-        // 3) Dış öneri enjeksiyonu (yalnızca Yemek/İzlenecek; yumuşak hata)
         val populerTurler = populerTurleriBul(temelHavuz)
         val oneriSonuc = oneriRepository.oneriUret(
             kategori = cark.kategori,
@@ -49,42 +42,17 @@ class CarkiCevirKullanimi @Inject constructor(
         )
         val oneriler = (oneriSonuc as? Sonuc.Basarili)?.veri ?: emptyList()
 
-        val nihaiListe = cezaliHavuz + oneriler
-        if (nihaiListe.isEmpty()) {
-            return Sonuc.Hata("Havuzda hiç seçenek yok. Önce havuza içerik ekleyin.")
+        val tumListe = cezaliHavuz + oneriler
+        if (tumListe.isEmpty()) {
+            return Sonuc.Hata("Bu çarkta hiç seçenek yok. Önce seçenek ekleyin.")
         }
 
-        // 4) Ağırlıklı rastgele seçim (adalet için TÜM liste üzerinden)
-        val kazanan = agirlikliSecimYap(nihaiListe, rastgele)
-            ?: return Sonuc.Hata("Seçim yapılamadı. Lütfen tekrar deneyin.")
-
-        // 5) Görsel çarkı okunur tutmak için dilim sayısını sınırla.
-        //    Kazanan her zaman görsel listede yer alır; adalet tam listeden gelir.
-        val gorselListe = gorselListeHazirla(nihaiListe, kazanan, rastgele)
-
-        val kazananIndeks = gorselListe.indexOf(kazanan)
-        val hedefAci = hedefAciHesapla(kazananIndeks, gorselListe.size, rastgele)
-
-        return Sonuc.Basarili(
-            CarkSonucu(
-                nihaiListe = gorselListe,
-                kazanan = kazanan,
-                kazananIndeks = kazananIndeks,
-                hedefAci = hedefAci
-            )
-        )
-    }
-
-    private fun gorselListeHazirla(
-        tumListe: List<HavuzOgesi>,
-        kazanan: HavuzOgesi,
-        rastgele: Random
-    ): List<HavuzOgesi> {
-        // Dilim konumları her çevirişte değişsin diye HER ZAMAN karıştır.
-        if (tumListe.size <= Sabitler.CARK_MAKS_DILIM) return tumListe.shuffled(rastgele)
-        val digerleri = tumListe.filter { it.id != kazanan.id || it.isim != kazanan.isim }
-            .shuffled(rastgele)
-            .take(Sabitler.CARK_MAKS_DILIM - 1)
-        return (digerleri + kazanan).shuffled(rastgele)
+        // Okunurluk için dilim sayısını sınırla; her çevirişte karıştır.
+        val gorselListe = if (tumListe.size <= Sabitler.CARK_MAKS_DILIM) {
+            tumListe.shuffled(rastgele)
+        } else {
+            tumListe.shuffled(rastgele).take(Sabitler.CARK_MAKS_DILIM)
+        }
+        return Sonuc.Basarili(gorselListe)
     }
 }

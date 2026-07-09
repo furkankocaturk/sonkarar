@@ -158,9 +158,7 @@ fun CarkListesiEkrani(
     if (durum.eklemeAcik) {
         YeniCarkDiyalogu(
             ad = durum.yeniAd,
-            kategori = durum.yeniKategori,
             adGuncelle = viewModel::adGuncelle,
-            kategoriGuncelle = viewModel::kategoriGuncelle,
             olustur = viewModel::carkOlustur,
             kapat = viewModel::eklemeyiKapat
         )
@@ -226,13 +224,10 @@ private fun CarkKarti(cark: Cark, tikla: () -> Unit, sil: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun YeniCarkDiyalogu(
     ad: String,
-    kategori: Kategori,
     adGuncelle: (String) -> Unit,
-    kategoriGuncelle: (Kategori) -> Unit,
     olustur: () -> Unit,
     kapat: () -> Unit
 ) {
@@ -249,21 +244,11 @@ private fun YeniCarkDiyalogu(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(
-                    text = stringResource(R.string.cark_tipi),
+                    text = stringResource(R.string.yeni_cark_ipucu),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    modifier = Modifier.padding(top = 12.dp)
                 )
-                Row {
-                    Kategori.entries.forEach { kat ->
-                        FilterChip(
-                            selected = kategori == kat,
-                            onClick = { kategoriGuncelle(kat) },
-                            label = { Text(kat.etiket) },
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                    }
-                }
             }
         },
         confirmButton = {

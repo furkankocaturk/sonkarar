@@ -141,21 +141,33 @@ fun CarkEkrani(
                                 tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(48.dp)
                             )
-                            CarkCizimi(
-                                ogeler = durum.cizilecekOgeler,
-                                hedefAci = durum.hedefAci,
-                                donuyorMu = durum.donuyorMu,
-                                cizgiGecildi = { haptik.tik() },
-                                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                            )
-                        }
+                        CarkCizimi(
+                            ogeler = durum.carkOgeleri,
+                            disHedefAci = durum.disHedefAci,
+                            disTur = durum.disTur,
+                            otomatikTetik = durum.otomatikTetik,
+                            yerelCevirmeEtkin = durum.cevrilebilir,
+                            tik = { haptik.tik() },
+                            yerelCevirmeBasladi = viewModel::cevirmeBasladi,
+                            yerelCevrildi = viewModel::yerelCevrildi,
+                            modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                        )
                     }
+                    if (!durum.donuyorMu && !durum.sonucGosteriliyor && durum.carkOgeleri.size >= 2) {
+                        Text(
+                            text = stringResource(R.string.cevir_ipucu),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.align(Alignment.BottomCenter)
+                        )
+                    }
+                }
 
                     if (durum.sonucGosteriliyor && durum.kazananIsim != null) {
                         SonucKarti(oge = durum.kazananOge, azalt = viewModel::kazananiAzalt)
                     }
 
-                    CevirButonu(etkin = !durum.donuyorMu, tikla = viewModel::cevir)
+                    CevirButonu(etkin = durum.cevrilebilir, tikla = viewModel::otomatikCevir)
                 }
 
                 if (durum.sonucGosteriliyor) {

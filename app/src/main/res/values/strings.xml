@@ -38,11 +38,13 @@
     <string name="yeni_cark">Yeni Çark</string>
     <string name="cark_adi">Çark adı (örn. Nereye gidelim?)</string>
     <string name="cark_tipi">Çark tipi</string>
+    <string name="yeni_cark_ipucu">Çark, varsayılan olarak \"Evet\" ve \"Hayır\" seçenekleriyle oluşturulur. Sonra istediğini ekleyebilirsin.</string>
     <string name="olustur">Oluştur</string>
 
     <!-- Çark -->
     <string name="cark_baslik">Karar Çarkı</string>
     <string name="cevir">ÇEVİR</string>
+    <string name="cevir_ipucu">Çarkı parmağınla çevir 👆</string>
     <string name="cark_donuyor">Çark dönüyor…</string>
     <string name="es_ceviriyor">Eşiniz çarkı çeviriyor…</string>
     <string name="sonuc_bicimi">Sonuç: %1$s</string>

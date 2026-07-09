@@ -9,30 +9,29 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/** Ekranların gradyan arka planı için tema-duyarlı renk listesi. */
 val YerelZeminDegrade = staticCompositionLocalOf { KoyuZeminDegrade }
 
-private val KoyuNeonSema = darkColorScheme(
-    primary = MarkaMor,
+private val KoyuSema = darkColorScheme(
+    primary = Mercan,
     onPrimary = Color.White,
-    secondary = MarkaTurkuaz,
-    onSecondary = ZeminSiyah,
-    tertiary = MarkaPembe,
-    background = ZeminSiyah,
-    onBackground = MetinBeyaz,
+    secondary = Teal,
+    onSecondary = Color.White,
+    tertiary = Amber,
+    background = ZeminKoyu,
+    onBackground = MetinAcik,
     surface = YuzeyKoyu,
-    onSurface = MetinBeyaz,
+    onSurface = MetinAcik,
     surfaceVariant = YuzeyKoyu2,
-    onSurfaceVariant = MetinSolgun,
+    onSurfaceVariant = MetinSolgunKoyu,
     error = HataKirmizi
 )
 
 private val AcikSema = lightColorScheme(
-    primary = MarkaMor,
+    primary = MercanKoyu,
     onPrimary = Color.White,
-    secondary = Color(0xFF12B3A6),
+    secondary = Color(0xFF1E9F90),
     onSecondary = Color.White,
-    tertiary = Color(0xFFE85D93),
+    tertiary = Color(0xFFDE8F3A),
     background = ZeminAcik,
     onBackground = MetinKoyu,
     surface = YuzeyAcik,
@@ -47,9 +46,9 @@ fun SonKararTemasi(
     koyuTema: Boolean = isSystemInDarkTheme(),
     icerik: @Composable () -> Unit
 ) {
-    val sema = if (koyuTema) KoyuNeonSema else AcikSema
-    val zeminDegrade = if (koyuTema) KoyuZeminDegrade else AcikZeminDegrade
-    CompositionLocalProvider(YerelZeminDegrade provides zeminDegrade) {
+    val sema = if (koyuTema) KoyuSema else AcikSema
+    val zemin = if (koyuTema) KoyuZeminDegrade else AcikZeminDegrade
+    CompositionLocalProvider(YerelZeminDegrade provides zemin) {
         MaterialTheme(
             colorScheme = sema,
             typography = SonKararTipografisi,

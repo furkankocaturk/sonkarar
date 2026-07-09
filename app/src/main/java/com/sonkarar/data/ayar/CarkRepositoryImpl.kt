@@ -6,6 +6,7 @@ import com.sonkarar.cekirdek.Sonuc
 import com.sonkarar.cekirdek.guvenliCagri
 import com.sonkarar.data.esleyici.domaineDonustur
 import com.sonkarar.data.esleyici.varligaDonustur
+import com.sonkarar.domain.model.HavuzOgesi
 import com.sonkarar.data.tercih.AppTercihleri
 import com.sonkarar.data.varsayilan.OntanimliHavuz
 import com.sonkarar.data.yerel.CarkDao
@@ -50,7 +51,7 @@ class CarkRepositoryImpl @Inject constructor(
         return carkDao.getir(carkId)?.domaineDonustur()
     }
 
-    override suspend fun carkEkle(ad: String, kategori: Kategori): Sonuc<String> = guvenliCagri {
+    override suspend fun carkEkle(ad: String): Sonuc<String> = guvenliCagri {
         val temiz = ad.trim()
         if (temiz.isBlank()) error("Lütfen çark için bir isim girin.")
         val carkId = "cark_${UUID.randomUUID()}"
@@ -60,11 +61,23 @@ class CarkRepositoryImpl @Inject constructor(
                 carkId = carkId,
                 sinerjiId = sinerjiId,
                 ad = temiz,
-                kategoriTipi = kategori.name,
+                kategoriTipi = Kategori.GENEL.name,
                 sistemMi = false,
                 siraNo = sira
             )
         )
+        // Varsayılan iki seçenek: Evet / Hayır.
+        val varsayilan = listOf("Evet", "Hayır").map { isim ->
+            HavuzOgesi(
+                id = UUID.randomUUID().toString(),
+                carkId = carkId,
+                kategori = Kategori.GENEL,
+                isim = isim,
+                ekleyenKullanici = Sabitler.YEREL_KULLANICI_ID,
+                agirlik = Sabitler.VARSAYILAN_AGIRLIK
+            ).varligaDonustur(sinerjiId)
+        }
+        havuzDao.ogeleriYaz(varsayilan)
         carkId
     }
 
