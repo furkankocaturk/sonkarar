@@ -2,6 +2,7 @@ package com.sonkarar.data.firestore.dto
 
 data class CarkGecmisiKaydiDto(
     val zamanDamgasi: Long = 0L,
+    val carkId: String = "",
     val kategori: String = "YEMEK",
     val sonuc: String = ""
 )

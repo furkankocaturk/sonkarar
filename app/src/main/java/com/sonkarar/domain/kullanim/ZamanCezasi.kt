@@ -1,6 +1,5 @@
 package com.sonkarar.domain.kullanim
 
-import com.sonkarar.cekirdek.Kategori
 import com.sonkarar.cekirdek.Sabitler
 import com.sonkarar.domain.model.CarkGecmisiKaydi
 import com.sonkarar.domain.model.HavuzOgesi
@@ -8,16 +7,16 @@ import kotlin.math.roundToInt
 
 object ZamanCezasi {
     /**
-     * Son [Sabitler.ZAMAN_CEZASI_TUR_SAYISI] turda ([kategori] için) çıkan
+     * Son [Sabitler.ZAMAN_CEZASI_TUR_SAYISI] turda (ilgili çark için) çıkan
      * ögelerin ağırlığını [Sabitler.ZAMAN_CEZASI_ORANI] katına indirir (%80 düşür).
      */
     fun uygula(
         ogeler: List<HavuzOgesi>,
         gecmis: List<CarkGecmisiKaydi>,
-        kategori: Kategori
+        carkId: String
     ): List<HavuzOgesi> {
         val sonSonuclar = gecmis
-            .filter { it.kategori == kategori }
+            .filter { it.carkId == carkId }
             .sortedByDescending { it.zamanDamgasi }
             .take(Sabitler.ZAMAN_CEZASI_TUR_SAYISI)
             .map { it.sonuc }

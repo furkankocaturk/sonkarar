@@ -4,6 +4,7 @@ import com.sonkarar.cekirdek.Kategori
 
 data class HavuzOgesi(
     val id: String,
+    val carkId: String = "",
     val kategori: Kategori,
     val isim: String,
     val tur: String = "",

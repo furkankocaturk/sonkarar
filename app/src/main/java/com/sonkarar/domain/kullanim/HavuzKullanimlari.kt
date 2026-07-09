@@ -12,15 +12,15 @@ import javax.inject.Inject
 class HavuzuGozlemleKullanimi @Inject constructor(
     private val havuzRepository: HavuzRepository
 ) {
-    operator fun invoke(sinerjiId: String, kategori: Kategori): Flow<List<HavuzOgesi>> =
-        havuzRepository.havuzuGozlemle(sinerjiId, kategori)
+    operator fun invoke(sinerjiId: String, carkId: String): Flow<List<HavuzOgesi>> =
+        havuzRepository.havuzuGozlemle(sinerjiId, carkId)
 }
 
 class SenkronizasyonuBaslatKullanimi @Inject constructor(
     private val havuzRepository: HavuzRepository
 ) {
-    operator fun invoke(sinerjiId: String, kategori: Kategori): Flow<Sonuc<Unit>> =
-        havuzRepository.senkronizasyonuBaslat(sinerjiId, kategori)
+    operator fun invoke(sinerjiId: String, carkId: String): Flow<Sonuc<Unit>> =
+        havuzRepository.senkronizasyonuBaslat(sinerjiId, carkId)
 }
 
 class HavuzaOgeEkleKullanimi @Inject constructor(
@@ -28,6 +28,7 @@ class HavuzaOgeEkleKullanimi @Inject constructor(
 ) {
     suspend operator fun invoke(
         sinerjiId: String,
+        carkId: String,
         kategori: Kategori,
         isim: String,
         tur: String = "",
@@ -37,17 +38,27 @@ class HavuzaOgeEkleKullanimi @Inject constructor(
         if (temiz.isBlank()) {
             return Sonuc.Hata("Lütfen bir isim girin.")
         }
-        val yemekMi = kategori == Kategori.YEMEK
+        val detay = when (kategori) {
+            Kategori.YEMEK -> LinkUretici.yemekTarifLinki(temiz)
+            Kategori.IZLENECEK -> LinkUretici.izlenecekLinki(temiz)
+            Kategori.GENEL -> ""
+        }
+        val kaynak = when (kategori) {
+            Kategori.YEMEK -> "Tarif ara"
+            Kategori.IZLENECEK -> "Nerede izlenir?"
+            Kategori.GENEL -> ""
+        }
         val oge = HavuzOgesi(
             id = "",
+            carkId = carkId,
             kategori = kategori,
             isim = temiz,
             tur = tur.trim(),
             ekleyenKullanici = ekleyenKullanici,
             agirlik = Sabitler.VARSAYILAN_AGIRLIK,
             disOneriMi = false,
-            detayUrl = LinkUretici.kategoriyeGoreLink(temiz, yemekMi),
-            kaynakAdi = if (yemekMi) "Tarif ara" else "Nerede izlenir?"
+            detayUrl = detay,
+            kaynakAdi = kaynak
         )
         return havuzRepository.ogeEkle(sinerjiId, oge)
     }

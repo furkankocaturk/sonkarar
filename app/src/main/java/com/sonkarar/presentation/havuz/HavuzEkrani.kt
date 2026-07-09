@@ -26,8 +26,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -67,84 +65,69 @@ fun HavuzEkrani(
         }
     }
 
+    val turGoster = durum.cark?.kategori != null && durum.cark?.kategori != Kategori.GENEL
+
     GradyanZemin {
-    Scaffold(
-        containerColor = Color.Transparent,
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.havuz_baslik)) },
-                navigationIcon = {
-                    IconButton(onClick = geriGit) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.geri)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
-                )
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarDurumu) }
-    ) { doldurma ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(doldurma)
-        ) {
-            val secilenSekme = if (durum.aktifKategori == Kategori.YEMEK) 0 else 1
-            TabRow(selectedTabIndex = secilenSekme) {
-                Tab(
-                    selected = secilenSekme == 0,
-                    onClick = { viewModel.kategoriDegistir(Kategori.YEMEK) },
-                    text = { Text(stringResource(R.string.sekme_yemekler)) }
-                )
-                Tab(
-                    selected = secilenSekme == 1,
-                    onClick = { viewModel.kategoriDegistir(Kategori.IZLENECEK) },
-                    text = { Text(stringResource(R.string.sekme_izlenecekler)) }
-                )
-            }
-
-            if (durum.gorunenOgeler.isEmpty()) {
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.havuz_bos),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(32.dp)
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text(durum.cark?.ad ?: stringResource(R.string.havuz_baslik)) },
+                    navigationIcon = {
+                        IconButton(onClick = geriGit) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.geri)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                     )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)
-                ) {
-                    items(durum.gorunenOgeler, key = { it.id }) { oge ->
-                        OgeSatiri(
-                            oge = oge,
-                            sil = { viewModel.ogeSil(oge.id) },
-                            favoriDegistir = { viewModel.favoriDegistir(oge) },
-                            silindiMetni = ogeSilindiMetni,
-                            snackbarDurumu = snackbarDurumu
+                )
+            },
+            snackbarHost = { SnackbarHost(snackbarDurumu) }
+        ) { doldurma ->
+            Column(
+                modifier = Modifier.fillMaxSize().padding(doldurma)
+            ) {
+                if (durum.ogeler.isEmpty()) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.havuz_bos),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(32.dp)
                         )
                     }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)
+                    ) {
+                        items(durum.ogeler, key = { it.id }) { oge ->
+                            OgeSatiri(
+                                oge = oge,
+                                sil = { viewModel.ogeSil(oge.id) },
+                                favoriDegistir = { viewModel.favoriDegistir(oge) },
+                                silindiMetni = ogeSilindiMetni,
+                                snackbarDurumu = snackbarDurumu
+                            )
+                        }
+                    }
                 }
-            }
 
-            EkleCubugu(
-                metin = durum.yeniOgeMetni,
-                metniGuncelle = viewModel::metniGuncelle,
-                tur = durum.yeniOgeTuru,
-                turuGuncelle = viewModel::turuGuncelle,
-                ekle = viewModel::ogeEkle
-            )
+                EkleCubugu(
+                    metin = durum.yeniOgeMetni,
+                    metniGuncelle = viewModel::metniGuncelle,
+                    tur = durum.yeniOgeTuru,
+                    turuGuncelle = viewModel::turuGuncelle,
+                    turGoster = turGoster,
+                    ekle = viewModel::ogeEkle
+                )
+            }
         }
-    }
     }
 }
 
@@ -162,11 +145,8 @@ private fun OgeSatiri(
             if (deger == SwipeToDismissBoxValue.EndToStart ||
                 deger == SwipeToDismissBoxValue.StartToEnd
             ) {
-                sil()
-                true
-            } else {
-                false
-            }
+                sil(); true
+            } else false
         }
     )
 
@@ -180,13 +160,11 @@ private fun OgeSatiri(
         state = kaydirmaDurumu,
         backgroundContent = {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 6.dp),
+                modifier = Modifier.fillMaxSize().padding(vertical = 6.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Delete,
+                    Icons.Filled.Delete,
                     contentDescription = stringResource(R.string.sil),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(end = 24.dp)
@@ -195,58 +173,41 @@ private fun OgeSatiri(
         }
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 6.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = oge.isim,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold
-                )
-                if (oge.tur.isNotBlank()) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = oge.tur,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 2.dp)
+                        text = oge.isim,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
                     )
+                    if (oge.tur.isNotBlank()) {
+                        Text(
+                            text = oge.tur,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                    if (oge.platform.isNotBlank() || oge.puan != null) {
+                        val bilgi = listOfNotNull(
+                            oge.platform.takeIf { it.isNotBlank() },
+                            oge.puan?.let { stringResource(R.string.puan_bicimi, it) }
+                        ).joinToString(" • ")
+                        Text(
+                            text = bilgi,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
                 }
-                if (oge.platform.isNotBlank() || oge.puan != null) {
-                    val bilgi = listOfNotNull(
-                        oge.platform.takeIf { it.isNotBlank() },
-                        oge.puan?.let { stringResource(R.string.puan_bicimi, it) }
-                    ).joinToString(" • ")
-                    Text(
-                        text = bilgi,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                }
-                val ekleyen = if (oge.disOneriMi) {
-                    stringResource(R.string.oneri_rozeti)
-                } else {
-                    oge.ekleyenKullanici
-                }
-                Text(
-                    text = stringResource(R.string.ekleyen_bicimi, ekleyen),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
                 IconButton(onClick = favoriDegistir) {
                     Icon(
                         imageVector = if (oge.favori) Icons.Filled.Star else Icons.Filled.StarBorder,
@@ -273,12 +234,11 @@ private fun EkleCubugu(
     metniGuncelle: (String) -> Unit,
     tur: String,
     turuGuncelle: (String) -> Unit,
+    turGoster: Boolean,
     ekle: () -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp),
+        modifier = Modifier.fillMaxWidth().padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -290,15 +250,15 @@ private fun EkleCubugu(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
-                value = tur,
-                onValueChange = turuGuncelle,
-                label = { Text(stringResource(R.string.yeni_tur_ipucu)) },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-            )
+            if (turGoster) {
+                OutlinedTextField(
+                    value = tur,
+                    onValueChange = turuGuncelle,
+                    label = { Text(stringResource(R.string.yeni_tur_ipucu)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
+            }
         }
         TextButton(onClick = ekle) {
             Text(

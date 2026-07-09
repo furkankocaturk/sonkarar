@@ -1,8 +1,8 @@
 package com.sonkarar.domain.kullanim
 
-import com.sonkarar.cekirdek.Kategori
 import com.sonkarar.cekirdek.Sabitler
 import com.sonkarar.cekirdek.Sonuc
+import com.sonkarar.domain.model.Cark
 import com.sonkarar.domain.model.CarkGecmisiKaydi
 import com.sonkarar.domain.model.HavuzOgesi
 import com.sonkarar.domain.repository.HavuzRepository
@@ -25,25 +25,25 @@ class CarkiCevirKullanimi @Inject constructor(
 ) {
     suspend operator fun invoke(
         sinerjiId: String,
-        kategori: Kategori,
+        cark: Cark,
         carkGecmisi: List<CarkGecmisiKaydi>,
         rastgele: Random = Random.Default
     ): Sonuc<CarkSonucu> {
         // 1) Havuzu çek
-        val havuzSonuc = havuzRepository.kategoriyiGetir(sinerjiId, kategori)
+        val havuzSonuc = havuzRepository.ogeleriGetir(sinerjiId, cark.carkId)
         val temelHavuz = when (havuzSonuc) {
             is Sonuc.Basarili -> havuzSonuc.veri
             is Sonuc.Hata -> return havuzSonuc
             Sonuc.Yukleniyor -> return Sonuc.Yukleniyor
         }
 
-        // 2) Zaman cezası uygula
-        val cezaliHavuz = ZamanCezasi.uygula(temelHavuz, carkGecmisi, kategori)
+        // 2) Zaman cezası uygula (bu çarka özel geçmişe göre)
+        val cezaliHavuz = ZamanCezasi.uygula(temelHavuz, carkGecmisi, cark.carkId)
 
-        // 3) Dış öneri enjeksiyonu (yumuşak hata: başarısızsa boş liste)
+        // 3) Dış öneri enjeksiyonu (yalnızca Yemek/İzlenecek; yumuşak hata)
         val populerTurler = populerTurleriBul(temelHavuz)
         val oneriSonuc = oneriRepository.oneriUret(
-            kategori = kategori,
+            kategori = cark.kategori,
             populerTurler = populerTurler,
             adet = Sabitler.ENJEKTE_EDILECEK_ONERI_SAYISI
         )
@@ -63,7 +63,7 @@ class CarkiCevirKullanimi @Inject constructor(
         val gorselListe = gorselListeHazirla(nihaiListe, kazanan, rastgele)
 
         val kazananIndeks = gorselListe.indexOf(kazanan)
-        val hedefAci = hedefAciHesapla(kazananIndeks, gorselListe.size)
+        val hedefAci = hedefAciHesapla(kazananIndeks, gorselListe.size, rastgele)
 
         return Sonuc.Basarili(
             CarkSonucu(
@@ -80,7 +80,8 @@ class CarkiCevirKullanimi @Inject constructor(
         kazanan: HavuzOgesi,
         rastgele: Random
     ): List<HavuzOgesi> {
-        if (tumListe.size <= Sabitler.CARK_MAKS_DILIM) return tumListe
+        // Dilim konumları her çevirişte değişsin diye HER ZAMAN karıştır.
+        if (tumListe.size <= Sabitler.CARK_MAKS_DILIM) return tumListe.shuffled(rastgele)
         val digerleri = tumListe.filter { it.id != kazanan.id || it.isim != kazanan.isim }
             .shuffled(rastgele)
             .take(Sabitler.CARK_MAKS_DILIM - 1)

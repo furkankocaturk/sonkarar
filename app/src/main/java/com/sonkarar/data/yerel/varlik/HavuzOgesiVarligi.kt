@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class HavuzOgesiVarligi(
     @PrimaryKey val id: String,
     val sinerjiId: String,
+    val carkId: String,
     val kategori: String,
     val isim: String,
     val tur: String,

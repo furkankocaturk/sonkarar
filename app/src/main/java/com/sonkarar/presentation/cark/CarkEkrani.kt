@@ -1,5 +1,7 @@
 package com.sonkarar.presentation.cark
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,27 +13,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import android.app.Activity
-import android.widget.Toast
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,9 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +55,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.sonkarar.R
 import com.sonkarar.cekirdek.Kategori
-import com.sonkarar.cekirdek.TemaModu
 import com.sonkarar.domain.model.HavuzOgesi
 import com.sonkarar.presentation.ortak.GradyanZemin
 import com.sonkarar.presentation.ortak.KonfetiEfekti
@@ -73,40 +62,19 @@ import com.sonkarar.presentation.ortak.KonfetiEfekti
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarkEkrani(
-    havuzaGit: () -> Unit,
-    gecmiseGit: () -> Unit,
-    cikisYapildi: () -> Unit,
+    havuzaGit: (String) -> Unit,
+    geriGit: () -> Unit,
     viewModel: CarkViewModel = hiltViewModel()
 ) {
     val durum by viewModel.durum.collectAsStateWithLifecycle()
     val baglam = LocalContext.current
     val snackbarDurumu = remember { SnackbarHostState() }
     val haptik = remember { HaptikVeSes(baglam) }
-    var menuAcik by remember { mutableStateOf(false) }
-    var sonGeriZamani by remember { mutableStateOf(0L) }
-    val cikmakMesaji = stringResource(R.string.cikmak_icin_tekrar)
 
-    DisposableEffect(Unit) {
-        onDispose { haptik.serbestBirak() }
-    }
-
-    // Çift geri: ilk basışta uyarı, ikinci basışta çıkış (evrensel davranış).
-    BackHandler {
-        val simdi = System.currentTimeMillis()
-        if (simdi - sonGeriZamani < 2000L) {
-            (baglam as? Activity)?.finish()
-        } else {
-            sonGeriZamani = simdi
-            Toast.makeText(baglam, cikmakMesaji, Toast.LENGTH_SHORT).show()
-        }
-    }
+    DisposableEffect(Unit) { onDispose { haptik.serbestBirak() } }
 
     LaunchedEffect(durum.sonucGosteriliyor) {
         if (durum.sonucGosteriliyor) haptik.kazanildi()
-    }
-
-    LaunchedEffect(durum.cikisYapildi) {
-        if (durum.cikisYapildi) cikisYapildi()
     }
 
     LaunchedEffect(durum.hataMesaji, durum.bilgiMesaji) {
@@ -117,133 +85,103 @@ fun CarkEkrani(
     }
 
     GradyanZemin {
-    Scaffold(
-        containerColor = Color.Transparent,
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.cark_baslik)) },
-                actions = {
-                    IconButton(onClick = havuzaGit) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.List,
-                            contentDescription = stringResource(R.string.havuza_git)
-                        )
-                    }
-                    IconButton(onClick = { menuAcik = true }) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = stringResource(R.string.menu)
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = menuAcik,
-                        onDismissRequest = { menuAcik = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.gecmise_git)) },
-                            onClick = {
-                                menuAcik = false
-                                gecmiseGit()
-                            }
-                        )
-                        HorizontalDivider()
-                        Text(
-                            text = stringResource(R.string.tema),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                        TemaModu.entries.forEach { mod ->
-                            DropdownMenuItem(
-                                text = { Text(mod.etiket) },
-                                onClick = {
-                                    menuAcik = false
-                                    viewModel.temaSec(mod)
-                                }
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text(durum.cark?.ad ?: stringResource(R.string.cark_baslik)) },
+                    navigationIcon = {
+                        IconButton(onClick = geriGit) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.geri)
                             )
                         }
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.cikis_yap)) },
-                            onClick = {
-                                menuAcik = false
-                                viewModel.cikisYap()
-                            }
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    actionIconContentColor = MaterialTheme.colorScheme.onBackground
+                    },
+                    actions = {
+                        val carkId = durum.cark?.carkId
+                        IconButton(
+                            onClick = { carkId?.let(havuzaGit) },
+                            enabled = carkId != null
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.List,
+                                contentDescription = stringResource(R.string.havuza_git)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                        actionIconContentColor = MaterialTheme.colorScheme.onBackground
+                    )
                 )
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarDurumu) }
-    ) { doldurma ->
-        Box(modifier = Modifier.fillMaxSize().padding(doldurma)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                KategoriSecici(
-                    aktifKategori = durum.aktifKategori,
-                    secildi = viewModel::kategoriDegistir,
-                    etkin = !durum.donuyorMu
-                )
-
-                DurumMetni(durum)
-
-                Box(
+            },
+            snackbarHost = { SnackbarHost(snackbarDurumu) }
+        ) { doldurma ->
+            Box(modifier = Modifier.fillMaxSize().padding(doldurma)) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Gösterge (tepede aşağıyı işaret eden ok)
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(48.dp)
-                        )
-                        CarkCizimi(
-                            ogeler = durum.cizilecekOgeler,
-                            hedefAci = durum.hedefAci,
-                            donuyorMu = durum.donuyorMu,
-                            cizgiGecildi = { haptik.tik() },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1f)
-                        )
+                    DurumMetni(durum)
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowDropDown,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            CarkCizimi(
+                                ogeler = durum.cizilecekOgeler,
+                                hedefAci = durum.hedefAci,
+                                donuyorMu = durum.donuyorMu,
+                                cizgiGecildi = { haptik.tik() },
+                                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                            )
+                        }
                     }
+
+                    if (durum.sonucGosteriliyor && durum.kazananIsim != null) {
+                        SonucKarti(oge = durum.kazananOge, azalt = viewModel::kazananiAzalt)
+                    }
+
+                    CevirButonu(etkin = !durum.donuyorMu, tikla = viewModel::cevir)
                 }
 
-                if (durum.sonucGosteriliyor && durum.kazananIsim != null) {
-                    SonucKarti(
-                        oge = durum.kazananOge,
-                        azalt = viewModel::kazananiAzalt
+                if (durum.sonucGosteriliyor) {
+                    KonfetiEfekti(
+                        tetikleyici = durum.konfetiTetikleyici,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
-
-                CevirButonu(
-                    etkin = !durum.donuyorMu,
-                    tikla = viewModel::cevir
-                )
-            }
-
-            if (durum.sonucGosteriliyor) {
-                KonfetiEfekti(
-                    tetikleyici = durum.konfetiTetikleyici,
-                    modifier = Modifier.fillMaxSize()
-                )
             }
         }
     }
+}
+
+@Composable
+private fun DurumMetni(durum: CarkArayuzDurumu) {
+    val metin = when {
+        durum.donuyorMu && durum.benCeviriyorum -> stringResource(R.string.cark_donuyor)
+        durum.donuyorMu && !durum.benCeviriyorum -> stringResource(R.string.es_ceviriyor)
+        else -> ""
+    }
+    if (metin.isNotBlank()) {
+        Text(
+            text = metin,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.secondary
+        )
     }
 }
 
@@ -291,16 +229,12 @@ private fun SonucKarti(oge: HavuzOgesi?, azalt: () -> Unit) {
                 AsyncImage(
                     model = oge.posterUrl,
                     contentDescription = oge.isim,
-                    modifier = Modifier
-                        .width(86.dp)
-                        .height(124.dp)
+                    modifier = Modifier.width(86.dp).height(124.dp)
                 )
                 Spacer(Modifier.width(16.dp))
             } else if (oge.kategori == Kategori.IZLENECEK) {
                 Box(
-                    modifier = Modifier
-                        .width(86.dp)
-                        .height(124.dp),
+                    modifier = Modifier.width(86.dp).height(124.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -340,19 +274,12 @@ private fun SonucKarti(oge: HavuzOgesi?, azalt: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                if (oge.kaynakAdi.isNotBlank()) {
-                    Text(
-                        text = stringResource(R.string.kaynak_bicimi, oge.kaynakAdi),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 12.dp)
                 ) {
                     if (oge.detayUrl.isNotBlank()) {
-                        Button(onClick = { uriAcici.openUri(oge.detayUrl) }) {
+                        androidx.compose.material3.Button(onClick = { uriAcici.openUri(oge.detayUrl) }) {
                             val metin = if (oge.kategori == Kategori.YEMEK) {
                                 stringResource(R.string.tarife_git)
                             } else {
@@ -362,7 +289,7 @@ private fun SonucKarti(oge: HavuzOgesi?, azalt: () -> Unit) {
                         }
                         Spacer(Modifier.width(8.dp))
                     }
-                    if (!oge.disOneriMi) {
+                    if (!oge.disOneriMi && oge.id.isNotBlank()) {
                         TextButton(onClick = azalt) {
                             Text(stringResource(R.string.bunu_azalt))
                         }
@@ -370,42 +297,5 @@ private fun SonucKarti(oge: HavuzOgesi?, azalt: () -> Unit) {
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun KategoriSecici(
-    aktifKategori: Kategori,
-    secildi: (Kategori) -> Unit,
-    etkin: Boolean
-) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        FilterChip(
-            selected = aktifKategori == Kategori.YEMEK,
-            onClick = { if (etkin) secildi(Kategori.YEMEK) },
-            label = { Text(stringResource(R.string.kategori_yemek)) }
-        )
-        FilterChip(
-            selected = aktifKategori == Kategori.IZLENECEK,
-            onClick = { if (etkin) secildi(Kategori.IZLENECEK) },
-            label = { Text(stringResource(R.string.kategori_izlenecek)) }
-        )
-    }
-}
-
-@Composable
-private fun DurumMetni(durum: CarkArayuzDurumu) {
-    val metin = when {
-        durum.donuyorMu && durum.benCeviriyorum -> stringResource(R.string.cark_donuyor)
-        durum.donuyorMu && !durum.benCeviriyorum -> stringResource(R.string.es_ceviriyor)
-        else -> ""
-    }
-    if (metin.isNotBlank()) {
-        Text(
-            text = metin,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.secondary
-        )
     }
 }

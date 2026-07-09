@@ -48,6 +48,7 @@ class OneriRepositoryImpl @Inject constructor(
     ): Sonuc<List<HavuzOgesi>> = when (kategori) {
         Kategori.IZLENECEK -> tmdbOnerileriUret(populerTurler, adet)
         Kategori.YEMEK -> Sonuc.Basarili(yemekOnerileriUret(populerTurler, adet))
+        Kategori.GENEL -> Sonuc.Basarili(emptyList())
     }
 
     private suspend fun tmdbOnerileriUret(

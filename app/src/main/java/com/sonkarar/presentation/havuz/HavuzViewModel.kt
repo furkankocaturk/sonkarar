@@ -1,34 +1,40 @@
 package com.sonkarar.presentation.havuz
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sonkarar.cekirdek.Kategori
 import com.sonkarar.cekirdek.Sonuc
 import com.sonkarar.domain.kullanim.AktifKullaniciyiGozlemleKullanimi
+import com.sonkarar.domain.kullanim.CarkGetirKullanimi
 import com.sonkarar.domain.kullanim.FavoriDegistirKullanimi
 import com.sonkarar.domain.kullanim.HavuzaOgeEkleKullanimi
 import com.sonkarar.domain.kullanim.HavuzdanOgeSilKullanimi
 import com.sonkarar.domain.kullanim.HavuzuGozlemleKullanimi
 import com.sonkarar.domain.kullanim.SenkronizasyonuBaslatKullanimi
 import com.sonkarar.domain.model.HavuzOgesi
+import com.sonkarar.presentation.navigasyon.Rotalar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HavuzViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     aktifKullaniciyiGozlemle: AktifKullaniciyiGozlemleKullanimi,
+    private val carkGetir: CarkGetirKullanimi,
     private val havuzuGozlemle: HavuzuGozlemleKullanimi,
     private val senkronizasyonuBaslat: SenkronizasyonuBaslatKullanimi,
     private val havuzaOgeEkle: HavuzaOgeEkleKullanimi,
     private val havuzdanOgeSil: HavuzdanOgeSilKullanimi,
     private val favoriDegistirKullanimi: FavoriDegistirKullanimi
 ) : ViewModel() {
+
+    private val carkId: String = savedStateHandle.get<String>(Rotalar.ARG_CARK_ID).orEmpty()
 
     private val _durum = MutableStateFlow(HavuzArayuzDurumu())
     val durum = _durum.asStateFlow()
@@ -37,53 +43,47 @@ class HavuzViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            _durum.update { it.copy(cark = carkGetir(carkId)) }
+        }
+        viewModelScope.launch {
             aktifKullaniciyiGozlemle()
                 .filterNotNull()
-                .map { it.kullaniciId to it.sinerjiId }
-                .collect { (kullaniciId, sinerjiId) ->
-                    _durum.update { it.copy(kullaniciId = kullaniciId, sinerjiId = sinerjiId) }
-                    if (sinerjiId.isNotBlank() && !akislarBaslatildi) {
+                .collect { kullanici ->
+                    _durum.update {
+                        it.copy(
+                            kullaniciId = kullanici.kullaniciId,
+                            sinerjiId = kullanici.sinerjiId
+                        )
+                    }
+                    if (kullanici.sinerjiId.isNotBlank() && !akislarBaslatildi) {
                         akislarBaslatildi = true
-                        akislariBaslat(sinerjiId)
+                        akislariBaslat(kullanici.sinerjiId)
                     }
                 }
         }
     }
 
     private fun akislariBaslat(sinerjiId: String) {
-        // Firestore -> Room senkronizasyonu (her iki kategori)
-        viewModelScope.launch { senkronizasyonuBaslat(sinerjiId, Kategori.YEMEK).collect {} }
-        viewModelScope.launch { senkronizasyonuBaslat(sinerjiId, Kategori.IZLENECEK).collect {} }
-
-        // Room gözlemi -> UI
+        viewModelScope.launch { senkronizasyonuBaslat(sinerjiId, carkId).collect {} }
         viewModelScope.launch {
-            havuzuGozlemle(sinerjiId, Kategori.YEMEK).collect { liste ->
-                _durum.update { it.copy(yemekler = liste) }
-            }
-        }
-        viewModelScope.launch {
-            havuzuGozlemle(sinerjiId, Kategori.IZLENECEK).collect { liste ->
-                _durum.update { it.copy(izlenecekler = liste) }
+            havuzuGozlemle(sinerjiId, carkId).collect { liste ->
+                _durum.update { it.copy(ogeler = liste) }
             }
         }
     }
 
-    fun kategoriDegistir(kategori: Kategori) =
-        _durum.update { it.copy(aktifKategori = kategori) }
-
-    fun metniGuncelle(yeni: String) =
-        _durum.update { it.copy(yeniOgeMetni = yeni) }
-
-    fun turuGuncelle(yeni: String) =
-        _durum.update { it.copy(yeniOgeTuru = yeni) }
+    fun metniGuncelle(yeni: String) = _durum.update { it.copy(yeniOgeMetni = yeni) }
+    fun turuGuncelle(yeni: String) = _durum.update { it.copy(yeniOgeTuru = yeni) }
 
     fun ogeEkle() {
         val anlik = _durum.value
+        val kategori = anlik.cark?.kategori ?: Kategori.GENEL
         if (anlik.sinerjiId.isBlank()) return
         viewModelScope.launch {
             when (val sonuc = havuzaOgeEkle(
                 sinerjiId = anlik.sinerjiId,
-                kategori = anlik.aktifKategori,
+                carkId = carkId,
+                kategori = kategori,
                 isim = anlik.yeniOgeMetni,
                 tur = anlik.yeniOgeTuru,
                 ekleyenKullanici = anlik.kullaniciId

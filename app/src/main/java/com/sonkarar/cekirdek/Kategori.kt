@@ -1,8 +1,9 @@
 package com.sonkarar.cekirdek
 
 enum class Kategori(val etiket: String) {
-    YEMEK("Yemekler"),
-    IZLENECEK("İzlenecekler");
+    YEMEK("Yemek"),
+    IZLENECEK("İzlenecek"),
+    GENEL("Genel");
 
     companion object {
         fun anahtardan(anahtar: String?): Kategori =

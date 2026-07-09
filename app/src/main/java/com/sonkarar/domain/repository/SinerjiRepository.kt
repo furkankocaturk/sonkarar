@@ -22,6 +22,7 @@ interface SinerjiRepository {
 
     suspend fun gecmiseKayitEkle(
         sinerjiId: String,
+        carkId: String,
         kategori: Kategori,
         sonuc: String
     ): Sonuc<Unit>

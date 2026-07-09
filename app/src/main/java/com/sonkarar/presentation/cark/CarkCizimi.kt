@@ -118,20 +118,26 @@ fun CarkCizimi(
             style = Stroke(width = yaricap * 0.03f)
         )
 
-        // Etiketler.
-        etiketBoyaci.textSize = yaricap * 0.115f
+        // Etiketler: her dilimin ORTASINA hizalı; alt yarıdaki yazılar 180° çevrilerek
+        // her zaman DÜZ (baş aşağı olmadan) yazılır. Böylece göstergenin (tepe) altındaki
+        // kazanan her zaman yatay ve net okunur.
+        etiketBoyaci.textSize = yaricap * 0.125f
+        val etiketY = merkez.y - yaricap * 0.60f
         drawIntoCanvas { tuval ->
             val yerelTuval = tuval.nativeCanvas
             ogeler.forEachIndexed { indeks, oge ->
-                val ortaAci = mevcutAci + indeks * dilimAcisi + dilimAcisi / 2f - 90f
+                // Tepeden (saat yönünde) dilim orta açısı.
+                val a = ((mevcutAci + indeks * dilimAcisi + dilimAcisi / 2f) % 360f + 360f) % 360f
                 yerelTuval.save()
-                yerelTuval.rotate(ortaAci, merkez.x, merkez.y)
-                val etiket = kisalt(oge.isim)
-                // Merkezden dışa doğru okunur biçimde yaz.
+                yerelTuval.rotate(a, merkez.x, merkez.y)
+                if (a > 90f && a < 270f) {
+                    // Alt yarı: baş aşağı olmasın diye çevir.
+                    yerelTuval.rotate(180f, merkez.x, etiketY)
+                }
                 yerelTuval.drawText(
-                    etiket,
+                    kisalt(oge.isim),
                     merkez.x,
-                    merkez.y - yaricap * 0.62f + etiketBoyaci.textSize / 3f,
+                    etiketY + etiketBoyaci.textSize / 3f,
                     etiketBoyaci
                 )
                 yerelTuval.restore()

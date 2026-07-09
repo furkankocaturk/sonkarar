@@ -45,7 +45,8 @@ class GecmiseKayitEkleKullanimi @Inject constructor(
 ) {
     suspend operator fun invoke(
         sinerjiId: String,
+        carkId: String,
         kategori: Kategori,
         sonuc: String
-    ): Sonuc<Unit> = sinerjiRepository.gecmiseKayitEkle(sinerjiId, kategori, sonuc)
+    ): Sonuc<Unit> = sinerjiRepository.gecmiseKayitEkle(sinerjiId, carkId, kategori, sonuc)
 }

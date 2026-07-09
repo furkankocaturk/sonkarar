@@ -2,6 +2,7 @@ package com.sonkarar.di
 
 import android.content.Context
 import androidx.room.Room
+import com.sonkarar.data.yerel.CarkDao
 import com.sonkarar.data.yerel.HavuzDao
 import com.sonkarar.data.yerel.KararGecmisiDao
 import com.sonkarar.data.yerel.SonKararVeriTabani
@@ -32,4 +33,8 @@ object VeriTabaniModulu {
     @Provides
     fun kararGecmisiDaoSagla(veriTabani: SonKararVeriTabani): KararGecmisiDao =
         veriTabani.kararGecmisiDao()
+
+    @Provides
+    fun carkDaoSagla(veriTabani: SonKararVeriTabani): CarkDao =
+        veriTabani.carkDao()
 }

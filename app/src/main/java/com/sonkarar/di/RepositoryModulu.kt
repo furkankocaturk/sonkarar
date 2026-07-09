@@ -1,11 +1,13 @@
 package com.sonkarar.di
 
 import com.sonkarar.data.ayar.AyarRepositoryImpl
+import com.sonkarar.data.ayar.CarkRepositoryImpl
 import com.sonkarar.data.firestore.HavuzRepositoryImpl
 import com.sonkarar.data.firestore.SinerjiRepositoryImpl
 import com.sonkarar.data.kimlik.KimlikRepositoryImpl
 import com.sonkarar.data.uzak.OneriRepositoryImpl
 import com.sonkarar.domain.repository.AyarRepository
+import com.sonkarar.domain.repository.CarkRepository
 import com.sonkarar.domain.repository.HavuzRepository
 import com.sonkarar.domain.repository.KimlikRepository
 import com.sonkarar.domain.repository.OneriRepository
@@ -39,4 +41,8 @@ abstract class RepositoryModulu {
     @Binds
     @Singleton
     abstract fun ayarRepositoryBagla(impl: AyarRepositoryImpl): AyarRepository
+
+    @Binds
+    @Singleton
+    abstract fun carkRepositoryBagla(impl: CarkRepositoryImpl): CarkRepository
 }

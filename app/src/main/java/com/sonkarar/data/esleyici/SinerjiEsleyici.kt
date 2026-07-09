@@ -18,6 +18,7 @@ fun SinerjiDto.domaineDonustur(sinerjiId: String): Sinerji = Sinerji(
 
 fun CarkGecmisiKaydiDto.domaineDonustur(): CarkGecmisiKaydi = CarkGecmisiKaydi(
     zamanDamgasi = zamanDamgasi,
+    carkId = carkId.ifBlank { kategori },
     kategori = Kategori.anahtardan(kategori),
     sonuc = sonuc
 )

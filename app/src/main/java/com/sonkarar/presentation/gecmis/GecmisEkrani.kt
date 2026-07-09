@@ -102,13 +102,8 @@ fun GecmisEkrani(
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            val kategoriEtiket = if (kayit.kategori == Kategori.YEMEK) {
-                                stringResource(R.string.kategori_yemek)
-                            } else {
-                                stringResource(R.string.kategori_izlenecek)
-                            }
                             Text(
-                                text = "$kategoriEtiket • ${bicimlendirici.format(Date(kayit.zamanDamgasi))}",
+                                text = "${kayit.kategori.etiket} • ${bicimlendirici.format(Date(kayit.zamanDamgasi))}",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 4.dp)

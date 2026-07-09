@@ -33,6 +33,13 @@
     <string name="havuz_bos">Henüz bir şey eklemediniz. İlk seçeneği ekleyin!</string>
     <string name="sil">Sil</string>
 
+    <!-- Çarklar (liste) -->
+    <string name="carklar_baslik">Çarklarım</string>
+    <string name="yeni_cark">Yeni Çark</string>
+    <string name="cark_adi">Çark adı (örn. Nereye gidelim?)</string>
+    <string name="cark_tipi">Çark tipi</string>
+    <string name="olustur">Oluştur</string>
+
     <!-- Çark -->
     <string name="cark_baslik">Karar Çarkı</string>
     <string name="cevir">ÇEVİR</string>

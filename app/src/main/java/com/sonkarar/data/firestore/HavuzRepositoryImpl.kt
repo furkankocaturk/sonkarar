@@ -11,7 +11,6 @@ import com.sonkarar.data.esleyici.dtoyaDonustur
 import com.sonkarar.data.esleyici.varligaDonustur
 import com.sonkarar.data.firestore.dto.HavuzOgesiDto
 import com.sonkarar.data.tercih.AppTercihleri
-import com.sonkarar.data.varsayilan.OntanimliHavuz
 import com.sonkarar.data.yerel.HavuzDao
 import com.sonkarar.domain.model.HavuzOgesi
 import com.sonkarar.domain.repository.HavuzRepository
@@ -38,20 +37,19 @@ class HavuzRepositoryImpl @Inject constructor(
             .document(sinerjiId)
             .collection(Sabitler.ALT_KOLEKSIYON_HAVUZ)
 
-    override fun havuzuGozlemle(sinerjiId: String, kategori: Kategori): Flow<List<HavuzOgesi>> =
-        havuzDao.ogeleriGozlemle(sinerjiId, kategori.name)
+    override fun havuzuGozlemle(sinerjiId: String, carkId: String): Flow<List<HavuzOgesi>> =
+        havuzDao.ogeleriGozlemle(sinerjiId, carkId)
             .map { liste -> liste.map { it.domaineDonustur() } }
 
     override fun senkronizasyonuBaslat(
         sinerjiId: String,
-        kategori: Kategori
+        carkId: String
     ): Flow<Sonuc<Unit>> {
         if (tercihler.yerelModAktif) {
-            return flow {
-                yerelVarsayilaniHazirla(sinerjiId)
-                emit(Sonuc.Basarili(Unit))
-            }
+            // Yerel modda Room tek kaynaktır; ek senkron gerekmez.
+            return flow { emit(Sonuc.Basarili(Unit)) }
         }
+        val kategori = Kategori.anahtardan(carkId)
         return callbackFlow {
             val dinleyici = havuzKoleksiyonu(sinerjiId)
                 .whereEqualTo("kategori", kategori.name)
@@ -67,25 +65,13 @@ class HavuzRepositoryImpl @Inject constructor(
                     } ?: emptyList()
 
                     launch {
-                        havuzDao.kategoriyiTemizle(sinerjiId, kategori.name)
+                        havuzDao.carkKategoriyiTemizle(sinerjiId, carkId)
                         havuzDao.ogeleriYaz(ogeler.map { it.varligaDonustur(sinerjiId) })
                     }
                     trySend(Sonuc.Basarili(Unit))
                 }
             awaitClose { dinleyici.remove() }
         }
-    }
-
-    private suspend fun yerelVarsayilaniHazirla(sinerjiId: String) {
-        if (tercihler.varsayilanHavuzYazildiMi) return
-        if (havuzDao.ogeSayisi(sinerjiId) > 0) {
-            tercihler.varsayilanHavuzYazildiMi = true
-            return
-        }
-        val ogeler = OntanimliHavuz.ogeleriOlustur(Sabitler.YEREL_KULLANICI_ID)
-            .map { it.copy(id = UUID.randomUUID().toString()).varligaDonustur(sinerjiId) }
-        havuzDao.ogeleriYaz(ogeler)
-        tercihler.varsayilanHavuzYazildiMi = true
     }
 
     override suspend fun ogeEkle(sinerjiId: String, oge: HavuzOgesi): Sonuc<Unit> =
@@ -120,13 +106,14 @@ class HavuzRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun kategoriyiGetir(
+    override suspend fun ogeleriGetir(
         sinerjiId: String,
-        kategori: Kategori
+        carkId: String
     ): Sonuc<List<HavuzOgesi>> = guvenliCagri {
         if (tercihler.yerelModAktif) {
-            havuzDao.ogeleriGetir(sinerjiId, kategori.name).map { it.domaineDonustur() }
+            havuzDao.ogeleriGetir(sinerjiId, carkId).map { it.domaineDonustur() }
         } else {
+            val kategori = Kategori.anahtardan(carkId)
             havuzKoleksiyonu(sinerjiId)
                 .whereEqualTo("kategori", kategori.name)
                 .get().await().documents.mapNotNull { belge ->

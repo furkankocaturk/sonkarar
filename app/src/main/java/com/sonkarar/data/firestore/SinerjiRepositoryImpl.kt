@@ -108,6 +108,7 @@ class SinerjiRepositoryImpl @Inject constructor(
                         carkGecmisi = gecmisVarliklari.map {
                             CarkGecmisiKaydi(
                                 zamanDamgasi = it.zamanDamgasi,
+                                carkId = it.carkId,
                                 kategori = Kategori.anahtardan(it.kategori),
                                 sonuc = it.sonuc
                             )
@@ -148,6 +149,7 @@ class SinerjiRepositoryImpl @Inject constructor(
 
     override suspend fun gecmiseKayitEkle(
         sinerjiId: String,
+        carkId: String,
         kategori: Kategori,
         sonuc: String
     ): Sonuc<Unit> = guvenliCagri {
@@ -155,6 +157,7 @@ class SinerjiRepositoryImpl @Inject constructor(
             kararGecmisiDao.ekle(
                 KararGecmisiVarligi(
                     sinerjiId = sinerjiId,
+                    carkId = carkId,
                     zamanDamgasi = System.currentTimeMillis(),
                     kategori = kategori.name,
                     sonuc = sonuc
@@ -163,6 +166,7 @@ class SinerjiRepositoryImpl @Inject constructor(
         } else {
             val kayit = CarkGecmisiKaydiDto(
                 zamanDamgasi = System.currentTimeMillis(),
+                carkId = carkId,
                 kategori = kategori.name,
                 sonuc = sonuc
             )
@@ -176,7 +180,9 @@ class SinerjiRepositoryImpl @Inject constructor(
             .document(sinerjiId)
             .collection(Sabitler.ALT_KOLEKSIYON_HAVUZ)
         val batch = firestore.batch()
-        OntanimliHavuz.ogeleriOlustur(kullaniciId).forEach { oge ->
+        val sistemOgeleri = OntanimliHavuz.carkOgeleri(OntanimliHavuz.CARK_YEMEK, kullaniciId) +
+            OntanimliHavuz.carkOgeleri(OntanimliHavuz.CARK_IZLENECEK, kullaniciId)
+        sistemOgeleri.forEach { oge ->
             val belge = havuz.document()
             batch.set(
                 belge,
